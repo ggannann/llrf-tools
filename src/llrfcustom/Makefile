@@ -12,7 +12,7 @@ EXCLUDE_ARCHS += eldk
 SOURCES = -none-
 EXECUTABLES = $(wildcard examples/build/*)
 EXECUTABLES += $(wildcard custom_logic/build/*)
-EXECUTABLES += $(wildcard matlabscripts/*)
+EXECUTABLES += $(wildcard matlab_scripts/*)
 EXECUTABLES += $(wildcard scripts/*)
 
 

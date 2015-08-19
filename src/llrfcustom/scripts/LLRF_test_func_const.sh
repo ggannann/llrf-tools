@@ -7,24 +7,25 @@ DEV_SIS="/dev/sis8300-4"
 DEV_NBR=4
 
 # TOP DIRECTORY
-TOP="/home/eit_ess/development/sis8300_development"
+TOP=$LLRF_CUSTOM_LOGIC_PATH
+
 # CUSTOM LOGIC FUNCTIONS
-CNIQ_CMD="$TOP/custom_logic/sis8300_setup_near_iq"
-CIRQ_CMD="$TOP/custom_logic/sis8300_wait_irq"
-CFSM_CMD="$TOP/custom_logic/sis8300_trigger_fsm"
-CINIT_CMD="$TOP/custom_logic/sis8300_init"
-CWR_CMD="$TOP/custom_logic/sis8300_write_custom_regs"
-CRD_CMD="$TOP/custom_logic/sis8300_read_custom_regs"
-CS_CMD="$TOP/custom_logic/sis8300_set_custom_sw_triggers"
-CWR_MEM="$TOP/custom_logic/sis8300_write_ddr_mem"
-CRD_MEM="$TOP/custom_logic/sis8300_read_ddr_mem"
+CNIQ_CMD="sis8300_setup_near_iq"
+CIRQ_CMD="sis8300_wait_irq"
+CFSM_CMD="sis8300_trigger_fsm"
+CINIT_CMD="sis8300_init"
+CWR_CMD="sis8300_write_custom_regs"
+CRD_CMD="sis8300_read_custom_regs"
+CS_CMD="$sis8300_set_custom_sw_triggers"
+CWR_MEM="sis8300_write_ddr_mem"
+CRD_MEM="sis8300_read_ddr_mem"
 # TEST FUNCTIONS
-CRT_CMD="$TOP/custom_logic/sis8300_reg_test"
-CMT_CMD="$TOP/custom_logic/sis8300_mem_test"
-CTT_CMD="$TOP/custom_logic/sis8300_verify_tables"
+CRT_CMD="sis8300_reg_test"
+CMT_CMD="sis8300_mem_test"
+CTT_CMD="sis8300_verify_tables"
 # BASIC FUNCTIONS
-WR_CMD="$TOP/examples/sis8300_writereg"
-RD_CMD="$TOP/examples/sis8300_readreg"
+WR_CMD="sis8300_writereg"
+RD_CMD="sis8300_readreg"
 # RTM functions
 WR_RTM_ATT_CMD="./link_test"
 

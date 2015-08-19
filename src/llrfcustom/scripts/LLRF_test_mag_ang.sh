@@ -93,7 +93,7 @@ select opt in $OPTIONS; do
 	$WR_RTM_ATT_CMD $DEV_NBR 1 63
         # Attenuation VM out 0 dBm
 	$WR_RTM_ATT_CMD $DEV_NBR 8 63
-	cd /home/eit_ess/development/sis8300_development/custom_logic
+	cd $LLRF_CUSTOM_LOGIC_PATH
         # Adjust ADC input tap delay on ADC 1/2
         $WR_CMD $DEV_SIS 0x49 0x106
       elif [ "$opt" = "SETUP_CARD_704_RTM" ]; then
@@ -119,7 +119,7 @@ select opt in $OPTIONS; do
 	$WR_RTM_ATT_CMD $DEV_NBR 8 63
         # Common mode voltage VM 1.7 V
 	$WR_RTM_ATT_CMD $DEV_NBR 9 0
-	cd /home/eit_ess/development/sis8300_development/custom_logic
+	cd $LLRF_CUSTOM_LOGIC_PATH
         # Adjust ADC input tap delay on ADC 1/2
         $WR_CMD $DEV_SIS 0x49 0x106
       elif [ "$opt" = "SETUP_CUSTOM_LOGIC_PI_CTRL_IQ_352_MHZ" ]; then
