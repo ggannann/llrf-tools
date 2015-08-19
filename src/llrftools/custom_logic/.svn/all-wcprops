@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/acc/!svn/ver/104559/projects/ESS/ControlBox/m-kmod-sis8300/src/main/c/test/test_acquisition
+END
+sis8300lib_acq.c
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/acc/!svn/ver/104559/projects/ESS/ControlBox/m-kmod-sis8300/src/main/c/test/test_acquisition/sis8300lib_acq.c
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 105
+/svn/acc/!svn/ver/104559/projects/ESS/ControlBox/m-kmod-sis8300/src/main/c/test/test_acquisition/Makefile
+END

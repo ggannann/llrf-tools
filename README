@@ -1,0 +1,181 @@
+############################
+# How to
+###########################
+1. Double click on Test_LLRF.sh 
+	- run in terminal
+
+All test programs and scripts are located here:
+cd /home/eit_ess/development/sis8300_development/custom_logic
+
+
+# to edit c-code
+> eclipse&
+
+# to compile
+cd /home/eit_ess/development/sis8300_development/custom_logic
+cd ..
+make clean
+make
+cd custom_logic
+
+
+# to read from memory
+# adc input
+cd /home/eit_ess/development/sis8300_development/custom_logic
+./sis8300_read_ddr_mem /dev/sis8300-4 0x0 0x10 1 0
+
+
+
+
+
+
+####################################################################################
+# OLD STUFF
+###################################################################################
+
+
+############################
+# GUI
+###########################
+To open GUI, use menu:
+applications/codac/css sis8300.opi (opi runtime)
+
+In command window:
+To connect gui to card:
+> sis8300-sample-ioc start
+To see GUI output:
+> sis8300-sample-ioc connect
+To disconnect gui to card:
+> sis8300-sample-ioc stop
+
+
+############################
+# Test programs
+###########################
+Common:
+all programs use the device id of the struck card as input, e.g. /dev/sis8300-4.
+The device id is found in the /dev/ folder. the -4 part is the MTCA crate slot number.
+
+In command window:
+> cd /home/eit_ess/development/sis8300_development/custom_logic
+> ./LLRF_test_mag_ang.sh
+
+
+
+To read registers:
+> ./sis8300lib_read_custom_regs /dev/sis8300-4 
+
+To write registers:
+> ./sis8300lib_write_custom_regs /dev/sis8300-4 
+
+To set custom logic sw triggers:
+> ./sis8300lib_set_custom_sw_triggers /dev/sis8300-4 
+
+To update c-programs:
+> make clean
+> make
+
+############################
+# epics cmds
+###########################
+pwd:
+/opt/codac-4.1/apps/epics-sis8300-sample/iocBoot/iocsis8300-sample
+cmds:
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:437 Constructing channel mask.
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:440 Channel 0 is enabled.
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:440 Channel 1 is enabled.
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:472 Calling sis8300drv_set_external_setup with 0 1 0
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:477 Calling sis8300drv_set_trigger_source with 1
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:487 Calling sis8300drv_set_clock_source with 2
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:491 Calling sis8300drv_set_clock_divider with 1
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:499 Calling sis8300drv_set_channel_mask with 3
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:503 Calling sis8300drv_set_nsamples 16384
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:507 Calling sis8300drv_set_npretrig 1
+sevr=info [DBG] ../sis8300AIChannelGroup.cpp:513 Calling sis8300drv_arm_device
+
+
+##############################
+# Read memory
+#############################
+# saved in ddr
+./sis8300_read_ddr_mem /dev/sis8300-4 0xC000000 0xFFF 1 > data.m
+# input data
+./sis8300_read_ddr_mem /dev/sis8300-4 0x0000000 0x800 1 > in_cav.m
+
+##############################
+# Device error in CSS
+#############################
+# Get EPICS log:
+> sis8300-sample-ioc start
+> sis8300-sample-ioc connect
+# Check dev ID used by EPICS, by looking at the FILE parameter:
+ndsCreateDevice "sis8300", "SIS8300", "FILE=/dev/sis8300-3"
+# get the correct ID, in cmd window:
+> ls /dev/sis*
+# if not the same change in:
+/opt/codac-4.1/apps/epics-sis8300-sample/iocBoot/iocsis8300-sample/st.cmd 
+
+############################
+# set get gui parameters
+###########################
+caget SIS8300:AI0-ENBL
+SIS8300:AI0-ENBL               Disabled
+[eit_ess@lion iocsample]$ caput SIS8300:AI0-ENBL Enabled
+Old : SIS8300:AI0-ENBL               Disabled
+New : SIS8300:AI0-ENBL               Enabled
+
+
+############################
+# settup tr
+###########################
+/home/eit_ess/development/case1/iocBoot/iocsample
+./st.cmd
+./tg_setup.sh 
+css - tr.opi
+
+############################
+# RESET struck
+###########################
+# if ok see irq 17
+ dmesg | grep sis
+# pull hotswap pin
+ dmesg | grep sis
+ PCI INT A disabled
+# push hotswap pin
+ dmesg | grep sis
+#wait see ok
+
+############################
+# MCH
+###########################
+telnet 130.235.202.160
+or 
+firefox 130.235.202.160
+
+#shutdown struck in slot 4
+shutdown 8 
+#start struck in slot 4
+fru_start 8 
+
+#more info at
+http://mtca.eu/
+
+############################
+# PCI
+###########################
+# list pci
+> lspci
+05:00.0 Unassigned class [ff00]: Research Centre Juelich Device 0019
+# specifics
+> lspci -s 05:00.0 -vvv
+
+############################
+# MISC
+###########################
+#start
+screen -S mySession1
+#send
+screen -S mySession1 -X stuff "ls ^M"
+# quit
+screen -X -S matlabSession1 quit
+
