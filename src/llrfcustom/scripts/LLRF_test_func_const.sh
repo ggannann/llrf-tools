@@ -7,7 +7,7 @@ DEV_SIS="/dev/sis8300-4"
 DEV_NBR=4
 
 # TOP DIRECTORY
-TOP=$LLRF_CUSTOM_LOGIC_PATH
+TOP=$LLRF_CL_PATH
 
 # CUSTOM LOGIC FUNCTIONS
 CNIQ_CMD="sis8300_setup_near_iq"
@@ -16,7 +16,7 @@ CFSM_CMD="sis8300_trigger_fsm"
 CINIT_CMD="sis8300_init"
 CWR_CMD="sis8300_write_custom_regs"
 CRD_CMD="sis8300_read_custom_regs"
-CS_CMD="$sis8300_set_custom_sw_triggers"
+CS_CMD="sis8300_set_custom_sw_triggers"
 CWR_MEM="sis8300_write_ddr_mem"
 CRD_MEM="sis8300_read_ddr_mem"
 # TEST FUNCTIONS
@@ -28,6 +28,9 @@ WR_CMD="sis8300_writereg"
 RD_CMD="sis8300_readreg"
 # RTM functions
 WR_RTM_ATT_CMD="./link_test"
+
+#all the files that get created are located here
+DATADIR=$(LLRF_HOME)
 
 
 ####################################
@@ -150,32 +153,32 @@ function test_ff_tables {
   done
   echo "All pulse_type tables loaded"
   # output FF values from PI-ctrl
-  set_bits $LLRF_PI_1_CTRL 0xFFFFFFC3 0x10 > tmp.txt
-  set_bits $LLRF_PI_2_CTRL 0xFFFFFFC3 0x10 > tmp.txt
+  set_bits $LLRF_PI_1_CTRL 0xFFFFFFC3 0x10 > $(DATADIR)/tmp.txt
+  set_bits $LLRF_PI_2_CTRL 0xFFFFFFC3 0x10 > $(DATADIR)/tmp.txt
   # Use FF table
-  set_bits $LLRF_PI_1_CTRL 0xFFFFFFFD 0x0 > tmp.txt
-  set_bits $LLRF_PI_2_CTRL 0xFFFFFFFD 0x0 > tmp.txt
+  set_bits $LLRF_PI_1_CTRL 0xFFFFFFFD 0x0 > $(DATADIR)/tmp.txt
+  set_bits $LLRF_PI_2_CTRL 0xFFFFFFFD 0x0 > $(DATADIR)/tmp.txt
   # Store VM-input in PI-error mem
   reg_val=$(echo "5*8192" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_GIP_C E000 > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_GIP_C E000 > $(DATADIR)/tmp.txt
   $CWR_CMD $DEV_SIS $LLRF_GIP_S $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
   echo "Checking that pulse_type tables are loaded correct:"
   for j in `seq 0 $LAST_PULSE`;
   do
      #set pulse type
      pulse_type=$(($j*65536))
-     set_bits $LLRF_GIP 0x0000FFFF $pulse_type > tmp.txt
+     set_bits $LLRF_GIP 0x0000FFFF $pulse_type > $(DATADIR)/tmp.txt
      # update tables
-     $CS_CMD   $DEV_SIS 3 > tmp.txt
+     $CS_CMD   $DEV_SIS 3 > $(DATADIR)/tmp.txt
      # run 1 itteration
-     $CFSM_CMD $DEV_SIS 1 0 > tmp.txt
+     $CFSM_CMD $DEV_SIS 1 0 > $(DATADIR)/tmp.txt
      # verify pi_error mem against sp_table
      $CTT_CMD $DEV_SIS 0
   done
   echo "TEST DONE"
-#  save_input_to_file > tmp.txt
+#  save_input_to_file > $(DATADIR)/tmp.txt
 #  matlab_plot
   echo "Last pulse plotted in matlab"
 }
@@ -220,25 +223,25 @@ function test_sp_tables {
   done
   echo "All pulse_type tables loaded"
   # zero input to PI-ctrl
-  set_bits $LLRF_IQ_CTRL 0xFFFFFFE3 0x1C > tmp.txt
+  set_bits $LLRF_IQ_CTRL 0xFFFFFFE3 0x1C > $(DATADIR)/tmp.txt
   # Use SP table
-  set_bits $LLRF_PI_1_CTRL 0xFFFFFFFE 0x0 > tmp.txt
-  set_bits $LLRF_PI_2_CTRL 0xFFFFFFFE 0x0 > tmp.txt
+  set_bits $LLRF_PI_1_CTRL 0xFFFFFFFE 0x0 > $(DATADIR)/tmp.txt
+  set_bits $LLRF_PI_2_CTRL 0xFFFFFFFE 0x0 > $(DATADIR)/tmp.txt
   echo "Checking that pulse_type tables are loaded correct:"
   for j in `seq 0 $LAST_PULSE`;
   do
      #set pulse type
      pulse_type=$(($j*65536))
-     set_bits $LLRF_GIP 0x0000FFFF $pulse_type > tmp.txt
+     set_bits $LLRF_GIP 0x0000FFFF $pulse_type > $(DATADIR)/tmp.txt
      # update tables
-     $CS_CMD   $DEV_SIS 3 > tmp.txt
+     $CS_CMD   $DEV_SIS 3 > $(DATADIR)/tmp.txt
      # run 1 itteration
-     $CFSM_CMD $DEV_SIS 1 0 > tmp.txt
+     $CFSM_CMD $DEV_SIS 1 0 > $(DATADIR)/tmp.txt
      # verify pi_error mem against sp_table
      $CTT_CMD $DEV_SIS 1
   done
   echo "TEST DONE"
-#  save_input_to_file > tmp.txt
+#  save_input_to_file > $(DATADIR)/tmp.txt
 #  matlab_plot
 #  echo "Last pulse plotted in matlab"
 }
@@ -277,14 +280,14 @@ function change_v {
   reg_val=$(printf "%x\n" $reg_val)
 #  echo hex $reg_val
   $CWR_CMD  $DEV_SIS $2 $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
-  $CS_CMD   $DEV_SIS A > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
+  $CS_CMD   $DEV_SIS A > $(DATADIR)/tmp.txt
 }
 function set_v {
   reg_val=$(printf "%x\n" $1)
   $CWR_CMD  $DEV_SIS $2 $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
-  $CS_CMD   $DEV_SIS A > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
+  $CS_CMD   $DEV_SIS A > $(DATADIR)/tmp.txt
 }
 function angle_offset_adjust {
   COUNTER=0
@@ -393,9 +396,9 @@ function change_state {
     reg_val=$($CRD_CMD $DEV_SIS $LLRF_GOP | grep -m1 -Po 'FSM State: 0x[0-9]' | grep -m1 -Po '0x[0-9]')
     reg_val=$(($reg_val))
     if [ "$reg_val" -eq "1" ]; then
-      set_bits_no_commit $STRUCK_ADC_SAMPLE_CTRL 0x800  > tmp.txt
-      $WR_CMD  $DEV_SIS 0x10 0x2  > tmp.txt
-      $CS_CMD   $DEV_SIS 6 > tmp.txt
+      set_bits_no_commit $STRUCK_ADC_SAMPLE_CTRL 0x800  > $(DATADIR)/tmp.txt
+      $WR_CMD  $DEV_SIS 0x10 0x2  > $(DATADIR)/tmp.txt
+      $CS_CMD   $DEV_SIS 6 > $(DATADIR)/tmp.txt
       print_state
       reg_val=$($CRD_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
       reg_val=$(($reg_val/1))
@@ -406,10 +409,10 @@ function change_state {
       reg_val=$(echo "$reg_val/32768" | bc -l)
       printf '  Fixed Set-Point Q: %f\n' $reg_val
     elif [ "$reg_val" -eq "3" ]; then
-      $CS_CMD   $DEV_SIS 7 > tmp.txt
+      $CS_CMD   $DEV_SIS 7 > $(DATADIR)/tmp.txt
       print_state
     elif [ "$reg_val" -eq "4" ]; then
-      $CS_CMD   $DEV_SIS 8 > tmp.txt
+      $CS_CMD   $DEV_SIS 8 > $(DATADIR)/tmp.txt
       print_state
       save_input_to_file
       matlab_plot
@@ -442,6 +445,8 @@ function print_state {
     fi
 }
 function save_input_to_file {
+  CURRENTDIR=$(pwd)
+  cd $(DATADIR)
   printf "%% " > llrf_m_script.m
   printf "%s " $(date) >> llrf_m_script.m
   printf "\n" >> llrf_m_script.m
@@ -537,6 +542,7 @@ function save_input_to_file {
   $CRD_MEM $DEV_SIS $base_addr $mem_size_outp 1 >> stored_custom_data.dat
   printf "\n [in_ch,memory]=load_data(in_ch_enable);\n" >> llrf_m_script.m
   printf "\n show_data_near_iq(in_ch,memory,mem_type,sp_I,sp_Q,use_scaling,angle_offset,M,N,cav_inp_delay_enable,cav_inp_delay,pulse_start_cnt,pulse_active_cnt,pi_err_samples)\n" >> llrf_m_script.m
+  cd $CURRENTDIR
 }
 function matlab_plot {
   screen -S matlabSession1 -X stuff $'llrf_m_script\n'
@@ -562,24 +568,24 @@ function setup_mem_store {
   reg_val=$(printf "%x\n" $reg_val)
   $CWR_CMD $DEV_SIS $LLRF_GIP_C E000
   $CWR_CMD $DEV_SIS $LLRF_GIP_S $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
 }
 function setup_mem_pi_err {
   echo "Please enter PI-error base addr (Hex): "
   read PI_BASE
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM $PI_BASE  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM $PI_BASE  > $(DATADIR)/tmp.txt
   $CRD_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM $LLRF_PI_ERR_MEM_SIZE
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
 }
 function setup_lut {
   echo "Please enter USED SP size in nbr of MA points (Dec): "
   read SP_POINTS
   reg_val=$(printf "%x\n" $SP_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM   $reg_val  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM   $reg_val  > $(DATADIR)/tmp.txt
   echo "Please enter USED FF size in nbr of MA points (Dec): "
   read FF_POINTS
   reg_val=$(printf "%x\n" $FF_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM   $reg_val  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM   $reg_val  > $(DATADIR)/tmp.txt
 }
 function setup_mem_ff_sp {
   echo "Please enter SP base-address (Hex): "
@@ -598,16 +604,16 @@ function setup_mem_ff_sp {
   read FF_POINTS
   reg_val=$(echo "$PULSE_TYPE*65536" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_GIP              $reg_val  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_GIP              $reg_val  > $(DATADIR)/tmp.txt
   reg_val=$(printf "%x\n" $SP_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM   $reg_val  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM   $reg_val  > $(DATADIR)/tmp.txt
   reg_val=$(printf "%x\n" $FF_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM   $reg_val  > tmp.txt
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_BASE  > tmp.txt
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_BASE  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM   $reg_val  > $(DATADIR)/tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_BASE  > $(DATADIR)/tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_BASE  > $(DATADIR)/tmp.txt
   reg_val=$(echo "$SP_SIZE*65536+$FF_SIZE" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $reg_val  > tmp.txt
+  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $reg_val  > $(DATADIR)/tmp.txt
   $CRD_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM $LLRF_MEM_CTRL_3_PARAM
   $CRD_CMD $DEV_SIS $LLRF_GIP $LLRF_GIP
 }
@@ -659,15 +665,15 @@ function toggle_bit {
   reg_val=$(($reg_val ^ $2))
   reg_val=$(printf "%x\n" $reg_val)
   $CWR_CMD  $DEV_SIS $1 $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
-  $CS_CMD   $DEV_SIS A > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
+  $CS_CMD   $DEV_SIS A > $(DATADIR)/tmp.txt
 }
 function dec_ff_tbl_speed {
   reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$((($reg_val + 64) & 0x000003FF))
   reg_val=$(printf "%x\n" $reg_val)
   $CWR_CMD  $DEV_SIS $1 $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
 }
 function set_bits {
   reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
@@ -675,8 +681,8 @@ function set_bits {
   reg_val=$(($reg_val | $3))
   reg_val=$(printf "%x\n" $reg_val)
   $CWR_CMD  $DEV_SIS $1 $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
-  $CS_CMD   $DEV_SIS A > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
+  $CS_CMD   $DEV_SIS A > $(DATADIR)/tmp.txt
 }
 function set_bits_no_commit {
   reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
@@ -706,8 +712,8 @@ function set_value_commit {
     reg_val=$(echo "if ($reg_val < 0) {$reg_val+4294967296} else {$reg_val}" | bc)
     reg_val=$(printf "%x\n" $reg_val)
     $CWR_CMD  $DEV_SIS $1 $reg_val
-    $CS_CMD   $DEV_SIS 2 > tmp.txt
-    $CS_CMD   $DEV_SIS A > tmp.txt
+    $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
+    $CS_CMD   $DEV_SIS A > $(DATADIR)/tmp.txt
   fi
 }
 function setup_dc {
@@ -723,8 +729,8 @@ function setup_dc {
   reg_val2=$(echo "$reg_val2/1" | bc)
   reg_val=$(printf "0x%04x%04x\n" $reg_val1 $reg_val2)
   $CWR_CMD  $DEV_SIS $LLRF_IQ_DC_OFFSET $reg_val
-  $CS_CMD   $DEV_SIS 2 > tmp.txt
-#  $CS_CMD   $DEV_SIS A > tmp.txt
+  $CS_CMD   $DEV_SIS 2 > $(DATADIR)/tmp.txt
+#  $CS_CMD   $DEV_SIS A > $(DATADIR)/tmp.txt
 }
 function setup_niq {
   echo "Please enter value for M: "
