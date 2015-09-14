@@ -86,14 +86,12 @@ select opt in $OPTIONS; do
 	#Enable RTM RF output
         $WR_CMD $DEV_SIS 0x12F 0x700
 	#Set attenuations on RTM
-	cd /home/eit_ess/development/RTM_sw/tests/rtm_i2c_test_DS8VM1_switched_clk_data
         # Attenuation cav in 0.0 dBm
-	$WR_RTM_ATT_CMD $DEV_NBR 0 63
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DS8WM1 0 63
         # Attenuation ref in 0 dBm
-	$WR_RTM_ATT_CMD $DEV_NBR 1 63
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DS8WM1 1 63
         # Attenuation VM out 0 dBm
-	$WR_RTM_ATT_CMD $DEV_NBR 8 63
-	cd $LLRF_CUSTOM_LOGIC_PATH
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DS8WM1 8 63
         # Adjust ADC input tap delay on ADC 1/2
         $WR_CMD $DEV_SIS 0x49 0x106
       elif [ "$opt" = "SETUP_CARD_704_RTM" ]; then
@@ -110,16 +108,14 @@ select opt in $OPTIONS; do
 	#Enable RTM RF output
         $WR_CMD $DEV_SIS 0x12F 0x700
 	#Set attenuations on RTM
-	cd /home/eit_ess/development/RTM_sw/tests/rtm_i2c_test
-        # Attenuation cav in 0 dBm
-	$WR_RTM_ATT_CMD $DEV_NBR 0 45
-        # Attenuation ref in 0 dBm
-	$WR_RTM_ATT_CMD $DEV_NBR 1 63
-        # Attenuation VM out 0 dBm
-	$WR_RTM_ATT_CMD $DEV_NBR 8 63
+        # Attenuation cav in -5.5 dB
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 0 52
+        # Attenuation ref in 0 dB
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 1 49
+        # Attenuation VM out -5.5 dB dB
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 8 41
         # Common mode voltage VM 1.7 V
-	$WR_RTM_ATT_CMD $DEV_NBR 9 0
-	cd $LLRF_CUSTOM_LOGIC_PATH
+	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 9 850
         # Adjust ADC input tap delay on ADC 1/2
         $WR_CMD $DEV_SIS 0x49 0x106
       elif [ "$opt" = "SETUP_CUSTOM_LOGIC_PI_CTRL_IQ_352_MHZ" ]; then
@@ -204,17 +200,17 @@ select opt in $OPTIONS; do
         $WR_CMD  $DEV_SIS 0x45 0x33
         echo "DAC OUTPUT: custom logic" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_K 0x00199999 
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_TS_DIV_TI 0x00014700
+        $CWR_CMD $DEV_SIS $LLRF_PI_1_K 0x00333333 
+        $CWR_CMD $DEV_SIS $LLRF_PI_1_TS_DIV_TI 0x00051EB8
         $CWR_CMD $DEV_SIS $LLRF_PI_1_SAT_MAX 0x0000FFFF
         $CWR_CMD $DEV_SIS $LLRF_PI_1_SAT_MIN 0xFFFF0000
         $CWR_CMD $DEV_SIS $LLRF_PI_1_CTRL 0x03C3 
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP 0x00006000
+        $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP 0x00007999
         $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_FF 0x00000000
         echo "PI I: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=16384 (0.75), FF=0, FF_TBL_SPEED = PI_SMPL_SPEED" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_K 0x00199999 
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_TS_DIV_TI 0x00014700
+        $CWR_CMD $DEV_SIS $LLRF_PI_2_K 0x00333333 
+        $CWR_CMD $DEV_SIS $LLRF_PI_2_TS_DIV_TI 0x00051EB8
         $CWR_CMD $DEV_SIS $LLRF_PI_2_SAT_MAX 0x0000FFFF
         $CWR_CMD $DEV_SIS $LLRF_PI_2_SAT_MIN 0xFFFF0000
         $CWR_CMD $DEV_SIS $LLRF_PI_2_CTRL 0x03 
@@ -222,7 +218,7 @@ select opt in $OPTIONS; do
         $CWR_CMD $DEV_SIS $LLRF_PI_2_FIXED_FF 0x00000000
         echo "PI Q: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=0 (0.0), FF=0" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_IQ_ANGLE 0xFFFDE7CD
+        $CWR_CMD $DEV_SIS $LLRF_IQ_ANGLE 0x00015240
         $CWR_CMD $DEV_SIS $LLRF_IQ_CTRL 0x00000703
         echo "IQ_SAMPLING : IQ_ANGLE = -120 deg, Cav input delay enabled, delay 14+3" 
         ##################################################
@@ -268,8 +264,8 @@ select opt in $OPTIONS; do
         echo "DAC OUTPUT       : custom logic" 
         echo "IQ_SAMPLING      : IQ_ANGLE = -0.3 deg, Cav input delay enabled, delay 14+3" 
         echo "NEAR-IQ SAMPLING : M = 4, N = 11" 
-        echo "PI I: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=16384 (0.75), FF=0, FF_TBL_SPEED = PI_SMPL_SPEED" 
-        echo "PI Q: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=0     (0.0), FF=0" 
+        echo "PI I: k=0.2, Ti=0.02, Sat_Max=0.99999, Sat_Min=-1, SP=31000 (0.95), FF=0, FF_TBL_SPEED = PI_SMPL_SPEED" 
+        echo "PI Q: k=0.2, Ti=0.02, Sat_Max=0.99999, Sat_Min=-1, SP=0     (0.0), FF=0" 
         echo "PULSE_TYPE = 0, NBR_FF = 32768, NBR_SP = 1024, FF_BASE_ADDR = 0x7DF60000, FF_SIZE = 4096, SP_BASE_ADDR = 0x7DE5C000, SP_SIZE = 512"
         echo "PI_ERR           : PI_ERR_BASE_ADDR = 0x0C000000"
         echo "VM_CTRL          : Scaling off, Mag limiter on (0.996), Output inversed(to compensate for struck DAC invertion)"

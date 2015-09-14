@@ -1,4 +1,4 @@
-rm -rf builddir
+make distclean
 cd examples
 make clean
 cd ../custom_logic
