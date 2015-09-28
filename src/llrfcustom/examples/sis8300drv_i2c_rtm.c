@@ -28,13 +28,7 @@ int main(int argc, char **argv) {
     sis8300drv_rtm rtm_type;
 	
     int val, chan, status;
-
-
-    rtm_sis8900 = 0,
-    rtm_dwc8vm1 = 1,
-    rtm_ds8vm1  = 2,
-    rtm_none    = 3
-
+    
     if (argc != 5) {
         printf("Usage: %s [device_node] [rtm_type] [channel] [att_val]\n", argv[0]);
         printf("Channel 0-7 is input attenuation (to ADCs)\n");

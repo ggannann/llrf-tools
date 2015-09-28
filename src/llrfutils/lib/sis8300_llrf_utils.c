@@ -415,6 +415,66 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
                 reg_val = reg_val >> 1;
             }
             break;
+        case LLRF_MON_STATUS_MAG_1:
+            printf("LLRF_MON_STATUS_MAG_1: 0x%08X\n", reg_val);
+            val_u = (unsigned)((reg_val&0x000000FF)>>0);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-3: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x0000FF00)>>8);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-3: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x00FF0000)>>16);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-4: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0xFF000000)>>24);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-4: 0x%01X (%f)\n", val_u,value_f);
+            break;
+        case LLRF_MON_STATUS_MAG_2:
+            printf("LLRF_MON_STATUS_MAG_2: 0x%08X\n", reg_val);
+            val_u = (unsigned)((reg_val&0x000000FF)>>0);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-5: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x0000FF00)>>8);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-5: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x00FF0000)>>16);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-6: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0xFF000000)>>24);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-6: 0x%01X (%f)\n", val_u,value_f);
+            break;
+        case LLRF_MON_STATUS_MAG_3:
+            printf("LLRF_MON_STATUS_MAG_3: 0x%08X\n", reg_val);
+            val_u = (unsigned)((reg_val&0x000000FF)>>0);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-7: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x0000FF00)>>8);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-7: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x00FF0000)>>16);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-8: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0xFF000000)>>24);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-8: 0x%01X (%f)\n", val_u,value_f);
+            break;
+        case LLRF_MON_STATUS_MAG_4:
+            printf("LLRF_MON_STATUS_MAG_4: 0x%08X\n", reg_val);
+            val_u = (unsigned)((reg_val&0x000000FF)>>0);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-9: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x0000FF00)>>8);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-9: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0x00FF0000)>>16);
+            value_f = (float)val_u / (2<<7);
+            printf("\tCurrent Mag ch-10: 0x%01X (%f)\n", val_u,value_f);
+            val_u = (unsigned)((reg_val&0xFF000000)>>24);
+            value_f = (float)val_u / (2<<7);
+            printf("\tMax-Min Mag ch-10: 0x%01X (%f)\n", val_u,value_f);
+            break;
         case LLRF_IQ_DEBUG1:
             printf("LLRF_IQ_DEBUG1: 0x%08X\n", reg_val);
 //            printf("\tI: %d\n", ((signed)(reg_val&0xFFFF0000))>>16);

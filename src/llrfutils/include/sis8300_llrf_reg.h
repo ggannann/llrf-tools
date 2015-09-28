@@ -6,7 +6,7 @@
 
 /* LLRF USER REGISTERS */
 #define LLRF_FIRST_REG          0x400
-#define LLRF_LAST_REG           0x438
+#define LLRF_LAST_REG           0x43C
 
 #define LLRF_ID		    	0x400
 #define LLRF_INST_ID		0x401
@@ -61,14 +61,18 @@
 #define LLRF_MON_LIMIT_3        0x432
 #define LLRF_MON_LIMIT_4        0x433
 #define LLRF_MON_STATUS         0x434
-#define LLRF_IQ_DEBUG1   	0x435
-#define LLRF_IQ_DEBUG2   	0x436
-#define LLRF_IQ_DEBUG3   	0x437
-#define LLRF_IQ_DEBUG4   	0x438
+#define LLRF_MON_STATUS_MAG_1   0x435
+#define LLRF_MON_STATUS_MAG_2   0x436
+#define LLRF_MON_STATUS_MAG_3   0x437
+#define LLRF_MON_STATUS_MAG_4   0x438
+#define LLRF_IQ_DEBUG1   	0x439
+#define LLRF_IQ_DEBUG2   	0x43A
+#define LLRF_IQ_DEBUG3   	0x43B
+#define LLRF_IQ_DEBUG4   	0x43C
 
 /* LLRF USER REGISTERS */
 #define LLRF_FIRST_REG_TEST     0x400
-#define LLRF_LAST_REG_TEST      0x434
+#define LLRF_LAST_REG_TEST      0x438
 
 const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
      // {Reg type (0=r/w 1=read only const,2=special,3=read only), Size, Default value, REG_ID}
@@ -125,6 +129,10 @@ const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
         { 0, 0xFFFFFFFF, 0x00000000, LLRF_MON_LIMIT_3},
         { 0, 0xFFFFFFFF, 0x00000000, LLRF_MON_LIMIT_4},
         { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS},
+        { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_1},
+        { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_2},
+        { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_3},
+        { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_4},
 };
 
 #endif /* SIS8300_LLRF_REG_H_ */
