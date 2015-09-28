@@ -1,3 +1,0 @@
-This will compile the llrf utils lib with examples
-Currently a workaround is in place because EEE does not handle compiling and installig c files as executables
-

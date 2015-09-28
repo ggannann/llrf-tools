@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
     sisuser = malloc(sizeof(sis8300drv_usr));
     sisuser->file = argv[1];
     status = sis8300drv_open_device(sisuser);
+    
     if (status) {
         printf("sis8300drv_open_device error: %d\n", status);
         return -1;
@@ -30,9 +31,10 @@ int main(int argc, char **argv) {
 
     status = sis8300drv_reg_write(sisuser, 0x10, 0x2);
     if (status) {
-	printf("Arm device failed %i\n", status);
-    } else {
-	printf("Armed, waiting...\n");
+		printf("Arm device failed %i\n", status);
+    } 
+    else {
+		printf("Armed, waiting...\n");
     }
 
     status = sis8300drv_wait_irq(sisuser, irq_type_usr, 0);
