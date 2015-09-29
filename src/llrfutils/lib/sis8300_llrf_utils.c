@@ -373,37 +373,37 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
         case LLRF_MON_LIMIT_1:
             printf("LLRF_MON_LIMIT_1: 0x%08X\n", reg_val);
             val_u = (unsigned)((reg_val&0x0000FFFF)>>0);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 3: 0x%01X (%f)\n", val_u,value_f);
             val_u = (unsigned)((reg_val&0xFFFF0000)>>16);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 4: 0x%01X (%f)\n", val_u,value_f);
             break;
         case LLRF_MON_LIMIT_2:
             printf("LLRF_MON_LIMIT_2: 0x%08X\n", reg_val);
             val_u = (unsigned)((reg_val&0x0000FFFF)>>0);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 5: 0x%01X (%f)\n", val_u,value_f);
             val_u = (unsigned)((reg_val&0xFFFF0000)>>16);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 6: 0x%01X (%f)\n", val_u,value_f);
             break;
         case LLRF_MON_LIMIT_3:
             printf("LLRF_MON_LIMIT_3: 0x%08X\n", reg_val);
             val_u = (unsigned)((reg_val&0x0000FFFF)>>0);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 7: 0x%01X (%f)\n", val_u,value_f);
             val_u = (unsigned)((reg_val&0xFFFF0000)>>16);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 8: 0x%01X (%f)\n", val_u,value_f);
             break;
         case LLRF_MON_LIMIT_4:
             printf("LLRF_MON_LIMIT_4: 0x%08X\n", reg_val);
             val_u = (unsigned)((reg_val&0x0000FFFF)>>0);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 9 : 0x%01X (%f)\n", val_u,value_f);
             val_u = (unsigned)((reg_val&0xFFFF0000)>>16);
-            value_f = (float)val_u / (2<<14);
+            value_f = (float)val_u / (2<<15);
             printf("\tLimit inp_ch 10: 0x%01X (%f)\n", val_u,value_f);
             break;
         case LLRF_MON_STATUS:

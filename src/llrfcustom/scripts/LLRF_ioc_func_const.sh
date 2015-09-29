@@ -226,6 +226,45 @@ function run_test_sweep_test {
 }
 
 
+function run_circular_sp_test {
+  echo -e "Enter SP magnitude (Default $DEFAULT_SP_MAG): \c "
+  read sp_mag
+  export mag=${sp_mag:-$DEFAULT_SP_MAG}
+  echo -e "Enter degrees between SPs (Default $DEFAULT_SP_DELTA_ANG): \c "
+  read sp_ang_delta
+  export ang_delta=${sp_ang_delta:-$DEFAULT_SP_DELTA_ANG}
+  echo "########################################"
+  echo "Start value of $LLRF_SYS:PI-I:FIXEDSPVAL -$mag"
+  echo "Start value of $LLRF_SYS:PI-Q:FIXEDSPVAL 0"
+  echo "Step size: $ang_delta" degrees
+  echo "########################################"
+  i_val=-$mag;
+  q_val=0;
+  worst_rms=0.0
+  best_rms=1.0
+  $PUT $LLRF_SYS:PI-I:FIXEDSPVAL $i_val > tmp.txt
+  $PUT $LLRF_SYS:PI-Q:FIXEDSPVAL $i_val > tmp.txt
+  #sweep
+  while [ $(echo "$pv_val <= $stop_value" | bc -l) -eq 1 ]; do
+    $RUN_FIXED $CONF/$conf_file $CONF/$DEFAULT_PARAM_FILE $LOG_DIR/$sys $nbr_pulses > tmp.txt
+    rms=$($GET_ERROR_METRIC $LOG_DIR/$sys/$BEFORE_AFTER_LOG 1 $METRIC)
+    if [ $(echo "$rms <= $best_rms" | bc -l) -eq 1 ] ; then
+      best_rms=$rms
+      best_pv_val=$pv_val
+    fi
+    echo "$sweep_pv $pv_val, rms $rms"
+    get_status
+    if [ $? -gt 0 ] && [ $warning_break -eq 1 ] ; then
+      break
+    fi
+    pv_val=$(echo "$pv_val+$step_size" | bc -l)
+    $PUT $LLRF_SYS:$sweep_pv $pv_val > tmp.txt
+  done 
+  $PUT $LLRF_SYS:$sweep_pv $best_pv_val > tmp.txt
+  echo "Test end, best RMS with $LLRF_SYS:$sweep_pv $best_pv_val"
+}
+
+
 function run_sweep_test_delay {
   sweep_pv0=IQ-SMPL:CAVIN-DELAY
   sweep_pv1=IQ-SMPL:ANG-OFFSET
