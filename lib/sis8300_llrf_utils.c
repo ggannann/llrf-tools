@@ -205,7 +205,7 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
             printf("\tAngle offset: %f (%f degrees)\n", value_f,value_deg);
             break;
         case LLRF_IQ_DC_OFFSET:
-            printf("NOT USED AT THE MOMENT\n", reg_val);
+            printf("NOT USED AT THE MOMENT: 0x%08X\n", reg_val);
 //            value = (signed)(reg_val&0xFFFF0000)>>16;
 //            value_f = (float)value/(2<<14);
 //            printf("\tDC-offset Cavity: %d\n",(reg_val&0xFFFF0000)>>16);
