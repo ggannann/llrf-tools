@@ -46,13 +46,13 @@ my $test_end=0;
 while (<>){
   if (/(TEST END)/) {
       $test_end = 1;
-  } elsif ($test_end && /I:RMS-AVERAGE\s*(\d.\d*)/){
+  } elsif ($test_end && /I-RMS-AVERAGE\s*(\d.[e,0-9,-]*)/){
       $avg_i = $1;
-  } elsif ($test_end && /Q:RMS-AVERAGE\s*(\d.\d*)/){
+  } elsif ($test_end && /Q-RMS-AVERAGE\s*(\d.[e,0-9,-]*)/){
       $avg_q = $1;
-  } elsif ($test_end && /I:RMS-MAX\s*(\d.\d*)/){
+  } elsif ($test_end && /I-RMS-MAX\s*(\d.[e,0-9,-]*)/){
       $max_i = $1;
-  } elsif ($test_end && /Q:RMS-MAX\s*(\d.\d*)/){
+  } elsif ($test_end && /Q-RMS-MAX\s*(\d.[e,0-9,-]*)/){
       $max_q = $1;
   }
 }

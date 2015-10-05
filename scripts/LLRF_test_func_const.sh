@@ -9,24 +9,24 @@ DEV_SIS="/dev/sis8300-4"
 TOP=$LLRF_CL_PATH
 
 # CUSTOM LOGIC FUNCTIONS
-CNIQ_CMD="sis8300_setup_near_iq"
-CIRQ_CMD="sis8300_wait_irq"
-CFSM_CMD="sis8300_trigger_fsm"
-CINIT_CMD="sis8300_init"
-CWR_CMD="sis8300_write_custom_regs"
-CRD_CMD="sis8300_read_custom_regs"
-CS_CMD="sis8300_set_custom_sw_triggers"
-CWR_MEM="sis8300_write_ddr_mem"
-CRD_MEM="sis8300_read_ddr_mem"
+CNIQ_CMD="requireExec llrftools,eit_ess -- sis8300_setup_near_iq $DEV_SIS"
+CIRQ_CMD="requireExec llrftools,eit_ess -- sis8300_wait_irq $DEV_SIS"
+CFSM_CMD="requireExec llrftools,eit_ess -- sis8300_trigger_fsm $DEV_SIS"
+CINIT_CMD="requireExec llrftools,eit_ess -- sis8300_init $DEV_SIS"
+CWR_CMD="requireExec llrftools,eit_ess -- sis8300_write_custom_regs $DEV_SIS"
+CRD_CMD="requireExec llrftools,eit_ess -- sis8300_read_custom_regs $DEV_SIS"
+CS_CMD="requireExec llrftools,eit_ess -- sis8300_set_custom_sw_triggers $DEV_SIS"
+CWR_MEM="requireExec llrftools,eit_ess -- sis8300_write_ddr_mem $DEV_SIS"
+CRD_MEM="requireExec llrftools,eit_ess -- sis8300_read_ddr_mem $DEV_SIS"
 # TEST FUNCTIONS
-CRT_CMD="sis8300_reg_test"
-CMT_CMD="sis8300_mem_test"
-CTT_CMD="sis8300_verify_tables"
+CRT_CMD="requireExec llrftools,eit_ess -- sis8300_reg_test $DEV_SIS"
+CMT_CMD="requireExec llrftools,eit_ess -- sis8300_mem_test $DEV_SIS"
+CTT_CMD="requireExec llrftools,eit_ess -- sis8300_verify_tables $DEV_SIS"
 # BASIC FUNCTIONS
-WR_CMD="sis8300_writereg"
-RD_CMD="sis8300_readreg"
+WR_CMD="requireExec sis8300drv -- sis8300drv_reg $DEV_SIS"
+RD_CMD="requireExec sis8300drv -- sis8300drv_reg $DEV_SIS"
 # RTM functions
-WR_RTM_ATT_CMD="sis8300drv_i2c_rtm"
+WR_RTM_ATT_CMD="requireExec sis8300drv -- sis8300drv_i2c_rtm $DEV_SIS"
 RTM_SIS8900=0 
 RTM_DWC8VM1=1 
 RTM_DS8WM1=2 
@@ -53,7 +53,7 @@ OPTIONS_FSM="BACK PULSE_COMMING PULSE_START PULSE_END PMS UPDATE_SP UPDATE_FF NE
 OPTIONS_MEM="BACK WRITE_MEM READ_MEM SETUP_FF_SP_MEM_LOC SETUP_LUT SETUP_MEM_STORE NEW_PULSE_TYPE_SETUP SETUP_SP_FF_OUTPUT PULSE_LUT CURRENT_SETTINGS SETUP_PI_ERROR COMMIT_CHANGES_IMMEDIATE_USE"
 
 LLRF_FIRST_REG=0x400
-LLRF_LAST_REG=0x42F
+LLRF_LAST_REG=0x433
 
 STRUCK_ADC_SAMPLE_CTRL=0x11
 
@@ -101,10 +101,14 @@ LLRF_NEAR_IQ_ADDR=0x429
 LLRF_FILTER_S=0x429
 LLRF_FILTER_C=0x42A
 LLRF_FILTER_A_CTRL=0x42B
-LLRF_IQ_DEBUG1=0x42C
-LLRF_IQ_DEBUG2=0x42D
-LLRF_IQ_DEBUG3=0x42E
-LLRF_IQ_DEBUG4=0x42F
+LLRF_MON_STATUS_MAG_1=0x42C
+LLRF_MON_STATUS_MAG_1=0x42D
+LLRF_MON_STATUS_MAG_1=0x42E
+LLRF_MON_STATUS_MAG_1=0x42F
+LLRF_IQ_DEBUG1=0x430
+LLRF_IQ_DEBUG2=0x431
+LLRF_IQ_DEBUG3=0x432
+LLRF_IQ_DEBUG4=0x433
 
 MEM_SIZE=1
 MEM_ADDR=0
@@ -162,9 +166,9 @@ function test_ff_tables {
   # Store VM-input in PI-error mem
   reg_val=$(echo "5*8192" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_GIP_C E000 > $DATADIR/tmp.txt
-  $CWR_CMD $DEV_SIS $LLRF_GIP_S $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_GIP_C E000 > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_GIP_S $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
   echo "Checking that pulse_type tables are loaded correct:"
   for j in `seq 0 $LAST_PULSE`;
   do
@@ -172,11 +176,11 @@ function test_ff_tables {
      pulse_type=$(($j*65536))
      set_bits $LLRF_GIP 0x0000FFFF $pulse_type > $DATADIR/tmp.txt
      # update tables
-     $CS_CMD   $DEV_SIS 3 > $DATADIR/tmp.txt
+     $CS_CMD   3 > $DATADIR/tmp.txt
      # run 1 itteration
-     $CFSM_CMD $DEV_SIS 1 0 > $DATADIR/tmp.txt
+     $CFSM_CMD 1 0 > $DATADIR/tmp.txt
      # verify pi_error mem against sp_table
-     $CTT_CMD $DEV_SIS 0
+     $CTT_CMD 0
   done
   echo "TEST DONE"
 #  save_input_to_file > $DATADIR/tmp.txt
@@ -235,11 +239,11 @@ function test_sp_tables {
      pulse_type=$(($j*65536))
      set_bits $LLRF_GIP 0x0000FFFF $pulse_type > $DATADIR/tmp.txt
      # update tables
-     $CS_CMD   $DEV_SIS 3 > $DATADIR/tmp.txt
+     $CS_CMD   3 > $DATADIR/tmp.txt
      # run 1 itteration
-     $CFSM_CMD $DEV_SIS 1 0 > $DATADIR/tmp.txt
+     $CFSM_CMD 1 0 > $DATADIR/tmp.txt
      # verify pi_error mem against sp_table
-     $CTT_CMD $DEV_SIS 1
+     $CTT_CMD 1
   done
   echo "TEST DONE"
 #  save_input_to_file > $DATADIR/tmp.txt
@@ -261,8 +265,8 @@ function run_auto {
   echo "Press return to start"
   read answer
   STARTTIME=$(date +%s)
-  $CIRQ_CMD $DEV_SIS $NBR_ITER &
-  $CFSM_CMD $DEV_SIS $NBR_ITER $1
+  $CIRQ_CMD $NBR_ITER &
+  $CFSM_CMD $NBR_ITER $1
   ENDTIME=$(date +%s)
   NBR_ITER_dec=$((0x$NBR_ITER/1))
   echo "It took $(($ENDTIME - $STARTTIME)) seconds to complete this task."
@@ -273,22 +277,22 @@ function run_auto {
   echo "Last pulse plotted in matlab"
 }
 function change_v {
-  reg_val=$($CRD_CMD $DEV_SIS $2 | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $2 | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val/1))
 #  echo raw $reg_val
   reg_val=$(($reg_val + $1))
 #  echo new $reg_val
   reg_val=$(printf "%x\n" $reg_val)
 #  echo hex $reg_val
-  $CWR_CMD  $DEV_SIS $2 $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
-  $CS_CMD   $DEV_SIS A > $DATADIR/tmp.txt
+  $CWR_CMD  $2 $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
+  $CS_CMD   A > $DATADIR/tmp.txt
 }
 function set_v {
   reg_val=$(printf "%x\n" $1)
-  $CWR_CMD  $DEV_SIS $2 $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
-  $CS_CMD   $DEV_SIS A > $DATADIR/tmp.txt
+  $CWR_CMD  $2 $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
+  $CS_CMD   A > $DATADIR/tmp.txt
 }
 function angle_offset_adjust {
   COUNTER=0
@@ -394,26 +398,26 @@ function run_semi {
   done
 }
 function change_state {
-    reg_val=$($CRD_CMD $DEV_SIS $LLRF_GOP | grep -m1 -Po 'FSM State: 0x[0-9]' | grep -m1 -Po '0x[0-9]')
+    reg_val=$($CRD_CMD $LLRF_GOP | grep -m1 -Po 'FSM State: 0x[0-9]' | grep -m1 -Po '0x[0-9]')
     reg_val=$(($reg_val))
     if [ "$reg_val" -eq "1" ]; then
       set_bits_no_commit $STRUCK_ADC_SAMPLE_CTRL 0x800  > $DATADIR/tmp.txt
-      $WR_CMD  $DEV_SIS 0x10 0x2  > $DATADIR/tmp.txt
-      $CS_CMD   $DEV_SIS 6 > $DATADIR/tmp.txt
+      $WR_CMD  0x10 -w 0x2  > $DATADIR/tmp.txt
+      $CS_CMD   6 > $DATADIR/tmp.txt
       print_state
-      reg_val=$($CRD_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+      reg_val=$($CRD_CMD $LLRF_PI_1_FIXED_SP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
       reg_val=$(($reg_val/1))
       reg_val=$(echo "$reg_val/32768" | bc -l)
       printf '  Fixed Set-Point I: %f\n' $reg_val
-      reg_val=$($CRD_CMD $DEV_SIS $LLRF_PI_2_FIXED_SP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+      reg_val=$($CRD_CMD $LLRF_PI_2_FIXED_SP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
       reg_val=$(($reg_val/1))
       reg_val=$(echo "$reg_val/32768" | bc -l)
       printf '  Fixed Set-Point Q: %f\n' $reg_val
     elif [ "$reg_val" -eq "3" ]; then
-      $CS_CMD   $DEV_SIS 7 > $DATADIR/tmp.txt
+      $CS_CMD   7 > $DATADIR/tmp.txt
       print_state
     elif [ "$reg_val" -eq "4" ]; then
-      $CS_CMD   $DEV_SIS 8 > $DATADIR/tmp.txt
+      $CS_CMD   8 > $DATADIR/tmp.txt
       print_state
       save_input_to_file
       matlab_plot
@@ -425,7 +429,7 @@ function change_state {
     echo "####################################################"
 }
 function print_state {
-    reg_val=$($CRD_CMD $DEV_SIS $LLRF_GOP | grep -m1 -Po 'FSM State: 0x[0-9]' | grep -m1 -Po '0x[0-9]')
+    reg_val=$($CRD_CMD $LLRF_GOP | grep -m1 -Po 'FSM State: 0x[0-9]' | grep -m1 -Po '0x[0-9]')
     reg_val=$(($reg_val))
     if [ "$reg_val" -eq "0" ]; then
       echo "Current State: INIT"
@@ -452,12 +456,12 @@ function save_input_to_file {
   printf "\n" >> llrf_m_script.m
   #printf "addpath($LLRF_CL_PATH)" >> llrf_m_script.m
   # Struck sample_length
-  reg_val=$($RD_CMD $DEV_SIS 0x12A | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($RD_CMD 0x12A | grep -m1 -Po 0x[0123456789abcdefABCDEF]{1\,8})
   reg_val=$(($reg_val+1))
   mem_size_inp_dec=$reg_val
   mem_size_inp=$(printf "%x\n" $reg_val)
   echo "  Mem size 0x$mem_size_inp in 256-bit blocks."
-  reg_val=$($RD_CMD $DEV_SIS 0x11 | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($RD_CMD 0x11 | grep -m1 -Po 0x[0123456789abcdefABCDEF]{1\,8})
   reg_val=$(( ($reg_val ^ 1023 ) & 1023))
   printf "\n in_ch_enable=%d;\n" $reg_val >> llrf_m_script.m
   in_ch_enable=$(printf "0x%x\n" $reg_val)
@@ -471,76 +475,76 @@ function save_input_to_file {
       echo "  Writing in_ch_$i from base addr 0x$base_addr to file in_ch_data_$i.dat"
       binoffset_to_2c=$(($i<7))
       matlab_format=$((2-$binoffset_to_2c))
-      $CRD_MEM $DEV_SIS $base_addr $mem_size_inp $matlab_format $binoffset_to_2c >> in_ch_data_$i.dat
+      $CRD_MEM $base_addr $mem_size_inp $matlab_format $binoffset_to_2c >> in_ch_data_$i.dat
     fi
     in_ch_enable=$(($in_ch_enable >> 1))
   done
   # PI settings
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP | grep -Po \\s\\s\\-?[0123456789]*)
+  reg_val=$($CRD_CMD $LLRF_PI_1_FIXED_SP | grep -Po \\s\\s\\-?[0123456789]*)
   printf "\n sp_I=%d;\n" $reg_val >> llrf_m_script.m
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_PI_2_FIXED_SP | grep -Po \\s\\s\\-?[0123456789]*)
+  reg_val=$($CRD_CMD $LLRF_PI_2_FIXED_SP | grep -Po \\s\\s\\-?[0123456789]*)
   printf "\n sp_Q=%d;\n" $reg_val >> llrf_m_script.m
   # IQ sampling settings
   # Near IQ
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_NEAR_IQ_1_PARAM | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_NEAR_IQ_1_PARAM | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   N=$((($reg_val & 0xFFFF0000)>>16))
   M=$((($reg_val & 0xFFFF)))
   printf "\n N=%d;\n" $N >> llrf_m_script.m
   printf "\n M=%d;\n" $M >> llrf_m_script.m
   # Use scaling
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_IQ_CTRL | grep -Po -m7 0x[0123456789] | tail -n1)
+  reg_val=$($CRD_CMD $LLRF_IQ_CTRL | grep -Po -m7 0x[0123456789] | tail -n1)
   reg_val=$(($reg_val/1))
   printf "\n use_scaling=%d;\n" $reg_val >> llrf_m_script.m
   # Angle
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_IQ_ANGLE | grep -Po -m1 \\\s-?[\\d]\\.[\\d]*)
+  reg_val=$($CRD_CMD $LLRF_IQ_ANGLE | grep -Po -m1 \\\s-?[\\d]\\.[\\d]*)
 #  echo "angle reg_val $reg_val"
   printf "\n angle_offset=%f;\n" $reg_val >> llrf_m_script.m
   # cavity delay
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_IQ_CTRL | grep -Po -m1 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_IQ_CTRL | grep -Po -m1 0x[0123456789abcdefABCDEF]{8})
   delay_enable=$((($reg_val & 0x00000002)>>1))
   printf "\n cav_inp_delay_enable=%d;\n" $delay_enable >> llrf_m_script.m
   delay=$((($reg_val & 0x00003F80)>>7))
   printf "\n cav_inp_delay=%d;\n" $delay >> llrf_m_script.m
   # FILTER values
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_FILTER_S | grep -Po [01]\\.[0123456789]{1\,8})
+  reg_val=$($CRD_CMD $LLRF_FILTER_S | grep -Po [01]\\.[0123456789]{1\,8})
   printf "\n filter_s=%f;\n" $reg_val >> llrf_m_script.m
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_FILTER_C | grep -Po [01]\\.[0123456789]{1\,8})
+  reg_val=$($CRD_CMD $LLRF_FILTER_C | grep -Po [01]\\.[0123456789]{1\,8})
   printf "\n filter_c=%f;\n" $reg_val >> llrf_m_script.m
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_FILTER_A_CTRL | grep -Po [01]\\.[0123456789]{1\,8})
+  reg_val=$($CRD_CMD $LLRF_FILTER_A_CTRL | grep -Po [01]\\.[0123456789]{1\,8})
   printf "\n filter_a=%f;\n" $reg_val >> llrf_m_script.m
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_FILTER_A_CTRL | grep -Po Filter_start.*\\d)
+  reg_val=$($CRD_CMD $LLRF_FILTER_A_CTRL | grep -Po Filter_start.*\\d)
   printf "\n %s%s%s;\n" $reg_val >> llrf_m_script.m
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_FILTER_A_CTRL | grep -Po Filter_stop.*\\d)
+  reg_val=$($CRD_CMD $LLRF_FILTER_A_CTRL | grep -Po Filter_stop.*\\d)
   printf "\n %s%s%s;\n" $reg_val >> llrf_m_script.m
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_FILTER_A_CTRL | grep -Po Filter_on.*\\d)
+  reg_val=$($CRD_CMD $LLRF_FILTER_A_CTRL | grep -Po Filter_on.*\\d)
   printf "\n %s%s%s;\n" $reg_val >> llrf_m_script.m
   # CL memory region
   # PI_err_start_cnt
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_PULSE_START_CNT | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_PULSE_START_CNT | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val/1))
   echo "PULSE START_CNT: $reg_val"
   printf "\n pulse_start_cnt=%d;\n" $reg_val >> llrf_m_script.m
   # PI_err_active_cnt
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_PULSE_ACTIVE_CNT | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_PULSE_ACTIVE_CNT | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val/1))
   echo "PULSE ACTIVE CNT: $reg_val"
   printf "\n pulse_active_cnt=%d;\n" $reg_val >> llrf_m_script.m
   # PI_err_samples
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_PI_ERR_CNT | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_PI_ERR_CNT | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val/1))
   printf "\n pi_err_samples=%d;\n" $reg_val >> llrf_m_script.m
   echo "PI_ERROR COUNT: $reg_val"
   reg_val=$((($reg_val+7)/8))
   echo "PI_ERROR MEM SIZE: $reg_val"
   mem_size_outp=$(printf "0x%x\n" $reg_val)
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_GIP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_GIP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   mem_type=$((($reg_val & 0xE000)>>13))
   echo "  Writing custom logic stored data of type $mem_type to file stored_custom_data.dat"
-  reg_val=$($CRD_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $LLRF_MEM_CTRL_4_PARAM | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   base_addr=$(printf "0x%x\n" $reg_val)
   printf "\n mem_type=%d;\n" $mem_type >> llrf_m_script.m
   printf "" > stored_custom_data.dat
-  $CRD_MEM $DEV_SIS $base_addr $mem_size_outp 1 >> stored_custom_data.dat
+  $CRD_MEM $base_addr $mem_size_outp 1 >> stored_custom_data.dat
   printf "\n [in_ch,memory]=load_data(in_ch_enable);\n" >> llrf_m_script.m
   printf "\n show_data_near_iq(in_ch,memory,mem_type,sp_I,sp_Q,use_scaling,angle_offset,M,N,cav_inp_delay_enable,cav_inp_delay,pulse_start_cnt,pulse_active_cnt,pi_err_samples)\n" >> llrf_m_script.m
 }
@@ -566,26 +570,26 @@ function setup_mem_store {
   read SIGNAL
   reg_val=$(echo "$SIGNAL*8192" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_GIP_C E000
-  $CWR_CMD $DEV_SIS $LLRF_GIP_S $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_GIP_C E000
+  $CWR_CMD $LLRF_GIP_S $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
 }
 function setup_mem_pi_err {
   echo "Please enter PI-error base addr (Hex): "
   read PI_BASE
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM $PI_BASE  > $DATADIR/tmp.txt
-  $CRD_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM $LLRF_PI_ERR_MEM_SIZE
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_MEM_CTRL_4_PARAM $PI_BASE  > $DATADIR/tmp.txt
+  $CRD_CMD $LLRF_MEM_CTRL_4_PARAM $LLRF_PI_ERR_MEM_SIZE
+  $CS_CMD   2 > $DATADIR/tmp.txt
 }
 function setup_lut {
   echo "Please enter USED SP size in nbr of MA points (Dec): "
   read SP_POINTS
   reg_val=$(printf "%x\n" $SP_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM   $reg_val  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_LUT_CTRL_2_PARAM   $reg_val  > $DATADIR/tmp.txt
   echo "Please enter USED FF size in nbr of MA points (Dec): "
   read FF_POINTS
   reg_val=$(printf "%x\n" $FF_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM   $reg_val  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_LUT_CTRL_1_PARAM   $reg_val  > $DATADIR/tmp.txt
 }
 function setup_mem_ff_sp {
   echo "Please enter SP base-address (Hex): "
@@ -604,18 +608,18 @@ function setup_mem_ff_sp {
   read FF_POINTS
   reg_val=$(echo "$PULSE_TYPE*65536" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_GIP              $reg_val  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_GIP              $reg_val  > $DATADIR/tmp.txt
   reg_val=$(printf "%x\n" $SP_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM   $reg_val  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_LUT_CTRL_2_PARAM   $reg_val  > $DATADIR/tmp.txt
   reg_val=$(printf "%x\n" $FF_POINTS)
-  $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM   $reg_val  > $DATADIR/tmp.txt
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_BASE  > $DATADIR/tmp.txt
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_BASE  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_LUT_CTRL_1_PARAM   $reg_val  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_BASE  > $DATADIR/tmp.txt
+  $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_BASE  > $DATADIR/tmp.txt
   reg_val=$(echo "$SP_SIZE*65536+$FF_SIZE" | bc -l)
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $reg_val  > $DATADIR/tmp.txt
-  $CRD_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM $LLRF_MEM_CTRL_3_PARAM
-  $CRD_CMD $DEV_SIS $LLRF_GIP $LLRF_GIP
+  $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $reg_val  > $DATADIR/tmp.txt
+  $CRD_CMD $LLRF_LUT_CTRL_1_PARAM $LLRF_MEM_CTRL_3_PARAM
+  $CRD_CMD $LLRF_GIP $LLRF_GIP
 }
 function read_mem {
   echo "Please enter address in hex: "
@@ -628,7 +632,7 @@ function read_mem {
   if [ $input ]; then
     MEM_SIZE=$input
   fi
-  $CRD_MEM $DEV_SIS $MEM_ADDR $MEM_SIZE
+  $CRD_MEM $MEM_ADDR $MEM_SIZE
   echo "Read 0x$MEM_SIZE * 8 MA-points from address 0x$MEM_ADDR"
 }
 function write_mem {
@@ -656,39 +660,39 @@ function write_mem {
   echo "Correct? Yes or no."
   read answer
   case $answer in
-      [Yy]* ) $CWR_MEM $DEV_SIS $MEM_ADDR $MEM_SIZE $DT_MAG $DT_ANG;;
+      [Yy]* ) $CWR_MEM $MEM_ADDR $MEM_SIZE $DT_MAG $DT_ANG;;
       [Nn]* ) echo "No memory write was performed.";;
   esac
 }
 function toggle_bit {
-  reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val ^ $2))
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD  $DEV_SIS $1 $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
-  $CS_CMD   $DEV_SIS A > $DATADIR/tmp.txt
+  $CWR_CMD  $1 $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
+  $CS_CMD   A > $DATADIR/tmp.txt
 }
 function dec_ff_tbl_speed {
-  reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$((($reg_val + 64) & 0x000003FF))
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD  $DEV_SIS $1 $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
+  $CWR_CMD  $1 $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
 }
 function set_bits {
-  reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val & $2))
   reg_val=$(($reg_val | $3))
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD  $DEV_SIS $1 $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
-  $CS_CMD   $DEV_SIS A > $DATADIR/tmp.txt
+  $CWR_CMD  $1 $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
+  $CS_CMD   A > $DATADIR/tmp.txt
 }
 function set_bits_no_commit {
-  reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(($reg_val | $2))
   reg_val=$(printf "%x\n" $reg_val)
-  $WR_CMD $DEV_SIS $1 $reg_val
+  $WR_CMD $1 -w $reg_val
 }
 function set_value_no_commit {
   echo "Please enter decimal input for $3: "
@@ -700,7 +704,7 @@ function set_value_no_commit {
     reg_val=$(echo "$reg_val/1" | bc)
     reg_val=$(echo "if ($reg_val < 0) {$reg_val+4294967296} else {$reg_val}" | bc)
     reg_val=$(printf "%x\n" $reg_val)
-    $CWR_CMD  $DEV_SIS $1 $reg_val
+    $CWR_CMD  $1 $reg_val
   fi
 }
 function set_value_commit {
@@ -711,9 +715,9 @@ function set_value_commit {
     reg_val=$(echo "$reg_val/1" | bc)
     reg_val=$(echo "if ($reg_val < 0) {$reg_val+4294967296} else {$reg_val}" | bc)
     reg_val=$(printf "%x\n" $reg_val)
-    $CWR_CMD  $DEV_SIS $1 $reg_val
-    $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
-    $CS_CMD   $DEV_SIS A > $DATADIR/tmp.txt
+    $CWR_CMD  $1 $reg_val
+    $CS_CMD   2 > $DATADIR/tmp.txt
+    $CS_CMD   A > $DATADIR/tmp.txt
   fi
 }
 function setup_dc {
@@ -728,16 +732,16 @@ function setup_dc {
   reg_val2=$(echo "if ($reg_val2 < 0) {$reg_val2+65536} else {$reg_val2}" | bc)
   reg_val2=$(echo "$reg_val2/1" | bc)
   reg_val=$(printf "0x%04x%04x\n" $reg_val1 $reg_val2)
-  $CWR_CMD  $DEV_SIS $LLRF_IQ_DC_OFFSET $reg_val
-  $CS_CMD   $DEV_SIS 2 > $DATADIR/tmp.txt
-#  $CS_CMD   $DEV_SIS A > $DATADIR/tmp.txt
+  $CWR_CMD  $LLRF_IQ_DC_OFFSET $reg_val
+  $CS_CMD   2 > $DATADIR/tmp.txt
+#  $CS_CMD   A > $DATADIR/tmp.txt
 }
 function setup_niq {
   echo "Please enter value for M: "
   read reg_val1
   echo "Please enter value for N: "
   read reg_val2
-  $CNIQ_CMD $DEV_SIS $reg_val1 $reg_val2 1 1
+  $CNIQ_CMD $reg_val1 $reg_val2 1 1
 }
 function setup_cav_inp_delay {
   echo "Please enter value for delay (N): "
@@ -747,8 +751,8 @@ function setup_cav_inp_delay {
   set_bits $LLRF_IQ_CTRL 0xFFFFE07F $reg_val 
 }
 function copy_reg {
-  reg_val=$($CRD_CMD $DEV_SIS $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
+  reg_val=$($CRD_CMD $1 | grep -Po 0x[0123456789abcdefABCDEF]{8})
   reg_val=$(printf "%x\n" $reg_val)
-  $CWR_CMD  $DEV_SIS $2 $reg_val
+  $CWR_CMD  $2 $reg_val
 }
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-. LLRF_ioc_func_const.sh
+. /home/eit_ess/git/m-llrf-tools/scripts/LLRF_ioc_func_const.sh
 
 ############
 #INPUT
@@ -71,8 +71,8 @@ select opt in $OPTIONS; do
           if [ "$opt" = "BACK" ]; then
 	    break
           elif [ "$opt" = "DUMMY_TABLE" ]; then
-            caput -a $LLRF_SYS:FF-PT0:I 2 0 0.3 0.3 > tmp.txt
-            caput -a $LLRF_SYS:SP-PT0:I 2 0 0.3 0.3 > tmp.txt
+            caput -a $LLRF_SYS:FF-PT0-I 2 0 0.3 0.3 > tmp.txt
+            caput -a $LLRF_SYS:SP-PT0-I 2 0 0.3 0.3 > tmp.txt
             caput $LLRF_SYS:PT 0
           elif [ "$opt" = "IMPORT_TABLE" ]; then
             setup_table
@@ -108,6 +108,7 @@ select opt in $OPTIONS; do
     echo "    - RUN_SWEEP_TEST_CAV_DELAY,  over Cav input delay, or"
     echo "    - RUN_TEST_NO_CAV_DELAY,     with NO Cav input delay."
     echo "    - RUN_TEST_LOOP_ATTENUATION, over Cav input and VM attenuation."
+    echo "    - RUN_TEST_CIRCULAR_SP,      SP around the circle."
     echo "####################################################"
     select opt in $OPTIONS_RUN; do
       if [ "$opt" = "BACK" ]; then
@@ -130,6 +131,8 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "RUN_TEST_LOOP_ATTENUATION" ]; then
         echo " RUN WITH NO BREAK ON WARNINGS! "
         run_test_loop_attenuation
+      elif [ "$opt" = "RUN_TEST_CIRCULAR_SP" ]; then
+        run_circular_sp_test
       elif [ "$opt" = "LIST_PARAMETERS_IN_USE" ]; then
         temp=${conf_file-NOT_SETUP_RUN_SINGLE_TEST_FIRST}
         echo "Threshold file        : $CONF/$temp"

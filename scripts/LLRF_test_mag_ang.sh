@@ -1,5 +1,5 @@
 #!/bin/bash
-. LLRF_test_func_const.sh
+. $LLRF_MATLAB_SCRIPTS_PATH/LLRF_test_func_const.sh
 
 ####################################
 # MAIN PROGRAM
@@ -22,9 +22,9 @@ select opt in $OPTIONS; do
     screen -S matlabSession1 -X stuff $'screen -X -S matlabSession1 quit\n'
     exit
   elif [ "$opt" = "SW_reset" ]; then
-    $CS_CMD $DEV_SIS B
-    $CRD_CMD $DEV_SIS 
-    $CRD_CMD $DEV_SIS $LLRF_GOP
+    $CS_CMD B
+    $CRD_CMD 
+    $CRD_CMD $LLRF_GOP
     echo "SW reseted, all registers should have default values."
   elif [ "$opt" = "SANITY_TESTS" ]; then
     echo "####################################################"
@@ -62,7 +62,7 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "SETUP_CARD" ]; then
         nsamples=0x60000
         ch_mask=0x3FF
-        $CINIT_CMD $DEV_SIS $nsamples $ch_mask
+        $CINIT_CMD $nsamples $ch_mask
         for i in `seq 1 10`;
         do
           if [ "$(($ch_mask & 0x1))" -eq "1" ]; then
@@ -71,11 +71,11 @@ select opt in $OPTIONS; do
           ch_mask=$(($ch_mask >> 1))
 	done
         # Adjust ADC input tap delay on ADC 1/2
-        $WR_CMD $DEV_SIS 0x49 0x106
+        $WR_CMD 0x49 -w 0x106
       elif [ "$opt" = "SETUP_CARD_352_RTM" ]; then
         nsamples=0x60000
         ch_mask=0x3FF
-        $CINIT_CMD $DEV_SIS $nsamples $ch_mask
+        $CINIT_CMD $nsamples $ch_mask
         for i in `seq 1 10`;
         do
             if [ "$(($ch_mask & 0x1))" -eq "1" ]; then
@@ -84,20 +84,20 @@ select opt in $OPTIONS; do
             ch_mask=$(($ch_mask >> 1))
 	done
 	#Enable RTM RF output
-        $WR_CMD $DEV_SIS 0x12F 0x700
+        $WR_CMD 0x12F -w 0x700
 	#Set attenuations on RTM
         # Attenuation cav in 0.0 dBm
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DS8WM1 0 63
+	$WR_RTM_ATT_CMD $RTM_DS8WM1 0 63
         # Attenuation ref in 0 dBm
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DS8WM1 1 63
+	$WR_RTM_ATT_CMD $RTM_DS8WM1 1 63
         # Attenuation VM out 0 dBm
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DS8WM1 8 63
+	$WR_RTM_ATT_CMD $RTM_DS8WM1 8 63
         # Adjust ADC input tap delay on ADC 1/2
-        $WR_CMD $DEV_SIS 0x49 0x106
+        $WR_CMD 0x49 -w 0x106
       elif [ "$opt" = "SETUP_CARD_704_RTM" ]; then
         nsamples=0x60000
         ch_mask=0x3FF
-        $CINIT_CMD $DEV_SIS $nsamples $ch_mask
+        $CINIT_CMD $nsamples $ch_mask
         for i in `seq 1 10`;
         do
             if [ "$(($ch_mask & 0x1))" -eq "1" ]; then
@@ -106,80 +106,80 @@ select opt in $OPTIONS; do
             ch_mask=$(($ch_mask >> 1))
 	done
 	#Enable RTM RF output
-        $WR_CMD $DEV_SIS 0x12F 0x700
+        $WR_CMD 0x12F -w 0x700
 	#Set attenuations on RTM
         # Attenuation cav in -5.5 dB
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 0 52
+	$WR_RTM_ATT_CMD $RTM_DWC8VM1 0 52
         # Attenuation ref in 0 dB
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 1 49
+	$WR_RTM_ATT_CMD $RTM_DWC8VM1 1 49
         # Attenuation VM out -5.5 dB dB
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 8 41
+	$WR_RTM_ATT_CMD $RTM_DWC8VM1 8 41
         # Common mode voltage VM 1.7 V
-	$WR_RTM_ATT_CMD $DEV_SIS $RTM_DWC8VM1 9 850
+	$WR_RTM_ATT_CMD $RTM_DWC8VM1 9 850
         # Adjust ADC input tap delay on ADC 1/2
-        $WR_CMD $DEV_SIS 0x49 0x106
+        $WR_CMD 0x49 -w 0x106
       elif [ "$opt" = "SETUP_CUSTOM_LOGIC_PI_CTRL_IQ_352_MHZ" ]; then
         ##################################################
-        $WR_CMD  $DEV_SIS 0x45 0x33
+        $WR_CMD  0x45 -w 0x33
         echo "DAC OUTPUT: custom logic" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_K 0x00333333
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_TS_DIV_TI 0x00028F5C
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_SAT_MAX 0x0000FFFF
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_SAT_MIN 0xFFFF0000
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_CTRL 0x03C3 
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP 0x00005999
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_FF 0x00000000
+        $CWR_CMD $LLRF_PI_1_K 0x00333333
+        $CWR_CMD $LLRF_PI_1_TS_DIV_TI 0x00028F5C
+        $CWR_CMD $LLRF_PI_1_SAT_MAX 0x0000FFFF
+        $CWR_CMD $LLRF_PI_1_SAT_MIN 0xFFFF0000
+        $CWR_CMD $LLRF_PI_1_CTRL 0x03C3 
+        $CWR_CMD $LLRF_PI_1_FIXED_SP 0x00005999
+        $CWR_CMD $LLRF_PI_1_FIXED_FF 0x00000000
         echo "PI I: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=16384 (0.75), FF=0, FF_TBL_SPEED = PI_SMPL_SPEED" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_K 0x00333333 
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_TS_DIV_TI 0x00028F5C
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_SAT_MAX 0x0000FFFF
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_SAT_MIN 0xFFFF0000
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_CTRL 0x03 
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_FIXED_SP 0x00005999
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_FIXED_FF 0x00000000
+        $CWR_CMD $LLRF_PI_2_K 0x00333333 
+        $CWR_CMD $LLRF_PI_2_TS_DIV_TI 0x00028F5C
+        $CWR_CMD $LLRF_PI_2_SAT_MAX 0x0000FFFF
+        $CWR_CMD $LLRF_PI_2_SAT_MIN 0xFFFF0000
+        $CWR_CMD $LLRF_PI_2_CTRL 0x03 
+        $CWR_CMD $LLRF_PI_2_FIXED_SP 0x00005999
+        $CWR_CMD $LLRF_PI_2_FIXED_FF 0x00000000
         echo "PI Q: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=0 (0.0), FF=0" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_IQ_ANGLE 0xFFFDE7CD
-        $CWR_CMD $DEV_SIS $LLRF_IQ_CTRL 0x00000703
+        $CWR_CMD $LLRF_IQ_ANGLE 0xFFFDE7CD
+        $CWR_CMD $LLRF_IQ_CTRL 0x00000703
         echo "IQ_SAMPLING : IQ_ANGLE = -120 deg, Cav input delay enabled, delay 14+3" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_FILTER_S 0x0134D397
-        $CWR_CMD $DEV_SIS $LLRF_FILTER_C 0x7FFE8B6F
-        $CWR_CMD $DEV_SIS $LLRF_FILTER_A_CTRL 0x33330024
+        $CWR_CMD $LLRF_FILTER_S 0x0134D397
+        $CWR_CMD $LLRF_FILTER_C 0x7FFE8B6F
+        $CWR_CMD $LLRF_FILTER_A_CTRL 0x33330024
         echo "MOD_RIP_FILTER : S = 0.009425, C = 0.999956, A = 0.199997, START = PULSE_START, STOP = PULSE_END, ACTIVE = 00 " 
         ##################################################
-	$CNIQ_CMD $DEV_SIS 4 11 1 1
+	$CNIQ_CMD 4 11 1 1
         echo "NEAR-IQ SAMPLING : M = 4, N = 11" 
         ##################################################
         SP_size=0x0200
         SP_base_addr=0x7FF38000
         FF_size=0x2000
         FF_base_addr=0x7FF40000
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00020000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00001000 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00020000 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00001000 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
         echo "PULSE_TYPE = 0, NBR_FF = 32768, NBR_SP = 1024, FF_BASE_ADDR = 0x7DF60000, FF_SIZE = 4096, SP_BASE_ADDR = 0x7DE5C000, SP_SIZE = 512"
-        $CWR_MEM $DEV_SIS $FF_base_addr $FF_size 8 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr $SP_size 9 1 
-        $CWR_MEM $DEV_SIS $FF_base_addr 0x1 0 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr 0x1 0 0 
+        $CWR_MEM $FF_base_addr $FF_size 8 0 
+        $CWR_MEM $SP_base_addr $SP_size 9 1 
+        $CWR_MEM $FF_base_addr 0x1 0 0 
+        $CWR_MEM $SP_base_addr 0x1 0 0 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM 0x7FFC0000
+        $CWR_CMD $LLRF_MEM_CTRL_4_PARAM 0x7FFC0000
         echo "PI_ERR_BASE_ADDR = 0x7FFE0000"
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_VM_CTRL 0x07 
-        $CWR_CMD $DEV_SIS $LLRF_VM_MAG_LIMIT 0x0000FF00 
+        $CWR_CMD $LLRF_VM_CTRL 0x07 
+        $CWR_CMD $LLRF_VM_MAG_LIMIT 0x0000FF00 
         echo "VM_CTRL: I and Q Output inversed, to compensate for struck DAC invertion"
         echo "VM_CTRL: Magnitude limit: ON, Mag_limit = 0x0000FF00 (0.996)"
         ##################################################
-        $CS_CMD $DEV_SIS 1
-        $CRD_CMD $DEV_SIS 
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD 1
+        $CRD_CMD 
+        $CRD_CMD $LLRF_GOP
         ##################################################
         echo "####################################################"
         echo "LLRF is setup as:"
@@ -197,66 +197,66 @@ select opt in $OPTIONS; do
         echo "####################################################"
       elif [ "$opt" = "SETUP_CUSTOM_LOGIC_PI_CTRL_IQ_704_MHZ" ]; then
         ##################################################
-        $WR_CMD  $DEV_SIS 0x45 0x33
+        $WR_CMD  0x45 -w 0x33
         echo "DAC OUTPUT: custom logic" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_K 0x00333333 
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_TS_DIV_TI 0x00051EB8
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_SAT_MAX 0x0000FFFF
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_SAT_MIN 0xFFFF0000
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_CTRL 0x03C3 
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_SP 0x00007999
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_FIXED_FF 0x00000000
+        $CWR_CMD $LLRF_PI_1_K 0x00333333 
+        $CWR_CMD $LLRF_PI_1_TS_DIV_TI 0x00051EB8
+        $CWR_CMD $LLRF_PI_1_SAT_MAX 0x0000FFFF
+        $CWR_CMD $LLRF_PI_1_SAT_MIN 0xFFFF0000
+        $CWR_CMD $LLRF_PI_1_CTRL 0x03C3 
+        $CWR_CMD $LLRF_PI_1_FIXED_SP 0x00007999
+        $CWR_CMD $LLRF_PI_1_FIXED_FF 0x00000000
         echo "PI I: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=16384 (0.75), FF=0, FF_TBL_SPEED = PI_SMPL_SPEED" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_K 0x00333333 
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_TS_DIV_TI 0x00051EB8
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_SAT_MAX 0x0000FFFF
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_SAT_MIN 0xFFFF0000
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_CTRL 0x03 
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_FIXED_SP 0x00000000
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_FIXED_FF 0x00000000
+        $CWR_CMD $LLRF_PI_2_K 0x00333333 
+        $CWR_CMD $LLRF_PI_2_TS_DIV_TI 0x00051EB8
+        $CWR_CMD $LLRF_PI_2_SAT_MAX 0x0000FFFF
+        $CWR_CMD $LLRF_PI_2_SAT_MIN 0xFFFF0000
+        $CWR_CMD $LLRF_PI_2_CTRL 0x03 
+        $CWR_CMD $LLRF_PI_2_FIXED_SP 0x00000000
+        $CWR_CMD $LLRF_PI_2_FIXED_FF 0x00000000
         echo "PI Q: k=0.1, Ti=0.005, Sat_Max=0.99999, Sat_Min=-1, SP=0 (0.0), FF=0" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_IQ_ANGLE 0x00015240
-        $CWR_CMD $DEV_SIS $LLRF_IQ_CTRL 0x00000703
+        $CWR_CMD $LLRF_IQ_ANGLE 0x00015240
+        $CWR_CMD $LLRF_IQ_CTRL 0x00000703
         echo "IQ_SAMPLING : IQ_ANGLE = -120 deg, Cav input delay enabled, delay 14+3" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_FILTER_S 0x0134D397
-        $CWR_CMD $DEV_SIS $LLRF_FILTER_C 0x7FFE8B6F
-        $CWR_CMD $DEV_SIS $LLRF_FILTER_A_CTRL 0x33330024
+        $CWR_CMD $LLRF_FILTER_S 0x0134D397
+        $CWR_CMD $LLRF_FILTER_C 0x7FFE8B6F
+        $CWR_CMD $LLRF_FILTER_A_CTRL 0x33330024
         echo "MOD_RIP_FILTER : S = 0.009425, C = 0.999956, A = 0.199997, START = PULSE_START, STOP = PULSE_END, ACTIVE = 00 " 
         ##################################################
-	$CNIQ_CMD $DEV_SIS 4 11 1 1
+	$CNIQ_CMD 4 11 1 1
         echo "NEAR-IQ SAMPLING : M = 4, N = 11" 
         ##################################################
         SP_size=0x0200
         SP_base_addr=0x7FF38000
         FF_size=0x2000
         FF_base_addr=0x7FF40000
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00020000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00001000 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00020000 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00001000 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
         echo "PULSE_TYPE = 0, NBR_FF = 32768, NBR_SP = 1024, FF_BASE_ADDR = 0x7DF60000, FF_SIZE = 4096, SP_BASE_ADDR = 0x7DE5C000, SP_SIZE = 512"
-        $CWR_MEM $DEV_SIS $FF_base_addr $FF_size 8 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr $SP_size 9 1 
-        $CWR_MEM $DEV_SIS $FF_base_addr 0x1 0 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr 0x1 0 0 
+        $CWR_MEM $FF_base_addr $FF_size 8 0 
+        $CWR_MEM $SP_base_addr $SP_size 9 1 
+        $CWR_MEM $FF_base_addr 0x1 0 0 
+        $CWR_MEM $SP_base_addr 0x1 0 0 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM 0x7FFC0000
+        $CWR_CMD $LLRF_MEM_CTRL_4_PARAM 0x7FFC0000
         echo "PI_ERR_BASE_ADDR = 0x7FFE0000"
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_VM_CTRL 0x07 
-        $CWR_CMD $DEV_SIS $LLRF_VM_MAG_LIMIT 0x0000FF00 
+        $CWR_CMD $LLRF_VM_CTRL 0x07 
+        $CWR_CMD $LLRF_VM_MAG_LIMIT 0x0000FF00 
         echo "VM_CTRL: I and Q Output inversed, to compensate for struck DAC invertion"
         echo "VM_CTRL: Magnitude limit: ON, Mag_limit = 0x0000FF00 (0.996)"
         ##################################################
-        $CS_CMD $DEV_SIS 1
-        $CRD_CMD $DEV_SIS 
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD 1
+        $CRD_CMD 
+        $CRD_CMD $LLRF_GOP
         ##################################################
         echo "####################################################"
         echo "LLRF is setup as:"
@@ -274,48 +274,48 @@ select opt in $OPTIONS; do
         echo "####################################################"
       elif [ "$opt" = "SETUP_CUSTOM_LOGIC_SELF_EXCITING_MODE" ]; then
         ##################################################
-        $WR_CMD  $DEV_SIS 0x45 0x33
+        $WR_CMD  0x45 -w 0x33
         echo "DAC OUTPUT: custom logic" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_1_CTRL 0x0004 
+        $CWR_CMD $LLRF_PI_1_CTRL 0x0004 
         echo "PI Magnitude: Bypassed, output is input" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_PI_2_CTRL 0x00004 
+        $CWR_CMD $LLRF_PI_2_CTRL 0x00004 
         echo "PI Angle: Bypassed, input is output" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_IQ_MAG_FACT 0x00010000
-        $CWR_CMD $DEV_SIS $LLRF_IQ_ANGLE 0x0000751F
-        $CWR_CMD $DEV_SIS $LLRF_IQ_CTRL 0x0021
+        $CWR_CMD $LLRF_IQ_MAG_FACT 0x00010000
+        $CWR_CMD $LLRF_IQ_ANGLE 0x0000751F
+        $CWR_CMD $LLRF_IQ_CTRL 0x0021
         echo "IQ_SAMPLING : IQ_MAG_FACT = 1, IQ_ANGLE = 26.2 deg" 
         echo "IQ_SAMPLING : Phase rotation on, ref phase zero" 
         ##################################################
-	$CNIQ_CMD $DEV_SIS 4 11 1 1
+	$CNIQ_CMD 4 11 1 1
         echo "NEAR-IQ SAMPLING : M = 4, N = 11" 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00000800 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00000400 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM 0x00080000 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM 0x00010000 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM 0x01000100 
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00000800 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00000400 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM 0x00080000 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM 0x00010000 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM 0x01000100 
         echo "PULSE_TYPE = 0, NBR_FF = 2048, NBR_SP = 1024, FF_BASE_ADDR = 0x00080000, FF_SIZE = 2048, SP_BASE_ADDR = 0x00010000, SP_SIZE = 2048"
-        $CWR_MEM $DEV_SIS 0x00080000 0x100 2 2 
-        $CWR_MEM $DEV_SIS 0x00010000 0x100 2 2 
+        $CWR_MEM 0x00080000 0x100 2 2 
+        $CWR_MEM 0x00010000 0x100 2 2 
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_4_PARAM 0x0C000000 
+        $CWR_CMD $LLRF_MEM_CTRL_4_PARAM 0x0C000000 
         echo "PI_ERR_BASE_ADDR = 0x0C00000"
         ##################################################
-        $CWR_CMD $DEV_SIS $LLRF_VM_CTRL 0x17 
-        $CWR_CMD $DEV_SIS $LLRF_VM_MAG_LIMIT 0x00008000 
+        $CWR_CMD $LLRF_VM_CTRL 0x17 
+        $CWR_CMD $LLRF_VM_MAG_LIMIT 0x00008000 
         echo "VM_CTRL: I and Q Output inversed, to compensate for struck DAC invertion"
         echo "VM_CTRL: Magnitude limit: ON, Mag_limit = 0x00008000 (0.5), force mag limit"
         ##################################################
-        $CS_CMD $DEV_SIS 1
-        $CRD_CMD $DEV_SIS 
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD 1
+        $CRD_CMD 
+        $CRD_CMD $LLRF_GOP
 	set_bits_no_commit $STRUCK_ADC_SAMPLE_CTRL 0x800  > tmp.txt
-        $WR_CMD  $DEV_SIS 0x10 0x2  > tmp.txt
-        $CS_CMD   $DEV_SIS 6 > tmp.txt
+        $WR_CMD  0x10 -w 0x2  > tmp.txt
+        $CS_CMD   6 > tmp.txt
         print_state
         ##################################################
         echo "####################################################"
@@ -374,17 +374,17 @@ select opt in $OPTIONS; do
       if [ "$opt" = "BACK" ]; then
 	break
       elif [ "$opt" = "MAX_MIN" ]; then
-        $WR_CMD  $DEV_SIS 0x46 0x0000FFFF
-        $WR_CMD  $DEV_SIS 0x45 0x30
+        $WR_CMD  0x46 -w 0x0000FFFF
+        $WR_CMD  0x45 -w 0x30
         echo "DAC OUTPUT: max and min values" 
       elif [ "$opt" = "SAW" ]; then
-        $WR_CMD  $DEV_SIS 0x45 0x31
+        $WR_CMD  0x45 -w 0x31
         echo "DAC OUTPUT: Saw curve" 
       elif [ "$opt" = "INPUT_CH1_CH2" ]; then
-        $WR_CMD  $DEV_SIS 0x45 0x32
+        $WR_CMD  0x45 -w 0x32
         echo "DAC OUTPUT : Input from ch1 and ch2" 
       elif [ "$opt" = "CUSTOM" ]; then
-        $WR_CMD  $DEV_SIS 0x45 0x33
+        $WR_CMD  0x45 -w 0x33
         echo "DAC OUTPUT: Custom logic output" 
       else
         echo bad option
@@ -419,18 +419,18 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "SET_CAVITY_INPUT_DELAY" ]; then
         setup_cav_inp_delay
       elif [ "$opt" = "COMMIT_CHANGES" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
+        $CS_CMD   2 > tmp.txt
         echo "New register values available to custom logic but not taken into use"
       elif [ "$opt" = "COMMIT_CHANGES_IMMEDIATE_USE" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
-        $CS_CMD   $DEV_SIS A > tmp.txt
+        $CS_CMD   2 > tmp.txt
+        $CS_CMD   A > tmp.txt
         echo "New register values taken into use"
       elif [ "$opt" = "CURRENT_SETTINGS" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_IQ_CTRL $LLRF_IQ_ANGLE
-  	reg_val=$($CRD_CMD $DEV_SIS $LLRF_NEAR_IQ_1_PARAM | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+        $CRD_CMD $LLRF_IQ_CTRL $LLRF_IQ_ANGLE
+  	reg_val=$($CRD_CMD $LLRF_NEAR_IQ_1_PARAM | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
   	N=$((($reg_val & 0xFFFF0000)>>16))
   	M=$((($reg_val & 0xFFFF)))
-	$CNIQ_CMD $DEV_SIS $M $N 0 1
+	$CNIQ_CMD $M $N 0 1
       else
         echo bad option
       fi
@@ -480,17 +480,17 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "TOGGLE_FILTER_Q_ON" ]; then
         toggle_bit $LLRF_FILTER_A_CTRL 0x2
       elif [ "$opt" = "COMMIT_CHANGES" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
+        $CS_CMD   2 > tmp.txt
         echo "New register values available to custom logic but not taken into use"
       elif [ "$opt" = "COMMIT_CHANGES_IMMEDIATE_USE" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
-        $CS_CMD   $DEV_SIS A > tmp.txt
+        $CS_CMD   2 > tmp.txt
+        $CS_CMD   A > tmp.txt
         echo "New register values taken into use"
       elif [ "$opt" = "CURRENT_SETTINGS" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_IQ_CTRL
-        $CRD_CMD $DEV_SIS $LLRF_PI_1_CTRL
-        $CRD_CMD $DEV_SIS $LLRF_PI_2_CTRL
-        $CRD_CMD $DEV_SIS $LLRF_FILTER_S $LLRF_FILTER_A_CTRL 
+        $CRD_CMD $LLRF_IQ_CTRL
+        $CRD_CMD $LLRF_PI_1_CTRL
+        $CRD_CMD $LLRF_PI_2_CTRL
+        $CRD_CMD $LLRF_FILTER_S $LLRF_FILTER_A_CTRL 
       else
         echo bad option
       fi
@@ -517,14 +517,14 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "SETUP_MAG_LIMIT" ]; then
         set_value_no_commit $LLRF_VM_MAG_LIMIT 65536 IQ_MAG_LIMIT
       elif [ "$opt" = "COMMIT_CHANGES" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
+        $CS_CMD   2 > tmp.txt
         echo "New register values available to custom logic but not taken into use"
       elif [ "$opt" = "COMMIT_CHANGES_IMMEDIATE_USE" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
-        $CS_CMD   $DEV_SIS A > tmp.txt
+        $CS_CMD   2 > tmp.txt
+        $CS_CMD   A > tmp.txt
         echo "New register values taken into use"
       elif [ "$opt" = "CURRENT_SETTINGS" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_VM_CTRL $LLRF_VM_MAG_LIMIT
+        $CRD_CMD $LLRF_VM_CTRL $LLRF_VM_MAG_LIMIT
       else
         echo bad option
       fi
@@ -576,25 +576,25 @@ select opt in $OPTIONS; do
           set_value_no_commit $LLRF_PI_2_FIXED_FF 32768 FIXED_FF
           echo "New register values written but not available to custom logic"
         elif [ "$opt" = "COMMIT_CHANGES" ]; then
-          $CS_CMD   $DEV_SIS 2 > tmp.txt
+          $CS_CMD   2 > tmp.txt
           echo "New register values available to custom logic but not taken into use"
         elif [ "$opt" = "COMMIT_CHANGES_IMMEDIATE_USE" ]; then
-          $CS_CMD   $DEV_SIS 2 > tmp.txt
-          $CS_CMD   $DEV_SIS A > tmp.txt
+          $CS_CMD   2 > tmp.txt
+          $CS_CMD   A > tmp.txt
           echo "New register values taken into use"
         elif [ "$opt" = "CURRENT_SETTINGS_PI_1" ]; then
-          $CRD_CMD $DEV_SIS $LLRF_PI_1_K $LLRF_PI_1_FIXED_FF
+          $CRD_CMD $LLRF_PI_1_K $LLRF_PI_1_FIXED_FF
         elif [ "$opt" = "CURRENT_SETTINGS_PI_2" ]; then
-          $CRD_CMD $DEV_SIS $LLRF_PI_2_K $LLRF_PI_2_FIXED_FF
+          $CRD_CMD $LLRF_PI_2_K $LLRF_PI_2_FIXED_FF
         else
           echo bad option
         fi
       done
       ###################################
       elif [ "$opt" = "CURRENT_SETTINGS_PI_1" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_PI_1_K $LLRF_PI_1_FIXED_FF
+        $CRD_CMD $LLRF_PI_1_K $LLRF_PI_1_FIXED_FF
       elif [ "$opt" = "CURRENT_SETTINGS_PI_2" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_PI_2_K $LLRF_PI_2_FIXED_FF
+        $CRD_CMD $LLRF_PI_2_K $LLRF_PI_2_FIXED_FF
       else
         echo bad option
       fi
@@ -611,66 +611,66 @@ select opt in $OPTIONS; do
         SP_base_addr=0x00C00000
         FF_size=0x4000
         FF_base_addr=0x00800000
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00020000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00000600 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00020000 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00000600 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
 	# sinusoid on mag
-        $CWR_MEM $DEV_SIS $FF_base_addr $FF_size 8 0 
+        $CWR_MEM $FF_base_addr $FF_size 8 0 
 	# stair on mag
-        $CWR_MEM $DEV_SIS $SP_base_addr $SP_size 9 0 
+        $CWR_MEM $SP_base_addr $SP_size 9 0 
 	# first value zero
-        $CWR_MEM $DEV_SIS $FF_base_addr 0x1 0 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr 0x1 0 0 
+        $CWR_MEM $FF_base_addr 0x1 0 0 
+        $CWR_MEM $SP_base_addr 0x1 0 0 
 	# setup MA out
 	set_bits $LLRF_VM_CTRL 0xFFFFFFCF 0x30
 	# use values
-        $CS_CMD  $DEV_SIS 2 > tmp.txt
-        $CS_CMD  $DEV_SIS A > tmp.txt
+        $CS_CMD  2 > tmp.txt
+        $CS_CMD  A > tmp.txt
       elif [ "$opt" = "GEN_MA_ang90" ]; then
         SP_size=0x0200
         SP_base_addr=0x00C00000
         FF_size=0x4000
         FF_base_addr=0x00800000
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00020000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00000600 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00020000 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00000600 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
 	# sinusoid on mag
-        $CWR_MEM $DEV_SIS $FF_base_addr $FF_size 8 0 
+        $CWR_MEM $FF_base_addr $FF_size 8 0 
 	# MAG:stair, ANG:PI/2
-        $CWR_MEM $DEV_SIS $SP_base_addr $SP_size 9 A 
+        $CWR_MEM $SP_base_addr $SP_size 9 A 
 	# first value zero
-        $CWR_MEM $DEV_SIS $FF_base_addr 0x1 0 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr 0x1 0 0 
+        $CWR_MEM $FF_base_addr 0x1 0 0 
+        $CWR_MEM $SP_base_addr 0x1 0 0 
 	# setup MA out
 	set_bits $LLRF_VM_CTRL 0xFFFFFFCF 0x30
 	# use values
-        $CS_CMD  $DEV_SIS 2 > tmp.txt
-        $CS_CMD  $DEV_SIS A > tmp.txt
-        $CS_CMD  $DEV_SIS 3 > tmp.txt
+        $CS_CMD  2 > tmp.txt
+        $CS_CMD  A > tmp.txt
+        $CS_CMD  3 > tmp.txt
       elif [ "$opt" = "GEN_IQ_ang0" ]; then
         SP_size=0x0200
         SP_base_addr=0x00C00000
         FF_size=0x4000
         FF_base_addr=0x00800000
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00020000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00000600 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00020000 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00000600 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
 	# sinusoid on I
-        $CWR_MEM $DEV_SIS $FF_base_addr $FF_size 8 0 
+        $CWR_MEM $FF_base_addr $FF_size 8 0 
 	# stair on I
-        $CWR_MEM $DEV_SIS $SP_base_addr $SP_size 9 0 
+        $CWR_MEM $SP_base_addr $SP_size 9 0 
 	# first value zero
-        $CWR_MEM $DEV_SIS $FF_base_addr 0x1 0 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr 0x1 0 0 
+        $CWR_MEM $FF_base_addr 0x1 0 0 
+        $CWR_MEM $SP_base_addr 0x1 0 0 
 	# setup IQ out
 	set_bits $LLRF_VM_CTRL 0xFFFFFFCF 0x00
         set_bits $LLRF_PI_1_CTRL 0xFFFFFFFC 0x0
@@ -678,27 +678,27 @@ select opt in $OPTIONS; do
         set_bits $LLRF_PI_1_CTRL 0xFFFFFFC3 0x18
         set_bits $LLRF_PI_2_CTRL 0xFFFFFFC3 0x18
 	# use values
-        $CS_CMD  $DEV_SIS 2 > tmp.txt
-        $CS_CMD  $DEV_SIS A > tmp.txt
-        $CS_CMD  $DEV_SIS 3 > tmp.txt
+        $CS_CMD  2 > tmp.txt
+        $CS_CMD  A > tmp.txt
+        $CS_CMD  3 > tmp.txt
       elif [ "$opt" = "GEN_IQ_ang90" ]; then
         SP_size=0x0200
         SP_base_addr=0x00C00000
         FF_size=0x4000
         FF_base_addr=0x00800000
-        $CWR_CMD $DEV_SIS $LLRF_GIP              0x00000000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM 0x00020000 
-        $CWR_CMD $DEV_SIS $LLRF_LUT_CTRL_2_PARAM 0x00000600 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
-        $CWR_CMD $DEV_SIS $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
+        $CWR_CMD $LLRF_GIP              0x00000000 
+        $CWR_CMD $LLRF_LUT_CTRL_1_PARAM 0x00020000 
+        $CWR_CMD $LLRF_LUT_CTRL_2_PARAM 0x00000600 
+        $CWR_CMD $LLRF_MEM_CTRL_1_PARAM $FF_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_2_PARAM $SP_base_addr 
+        $CWR_CMD $LLRF_MEM_CTRL_3_PARAM $(printf "0x%04x%04x\n" $SP_size $FF_size)
 	# sinusoid on Q
-        $CWR_MEM $DEV_SIS $FF_base_addr $FF_size 0 8 
+        $CWR_MEM $FF_base_addr $FF_size 0 8 
 	# stair on Q
-        $CWR_MEM $DEV_SIS $SP_base_addr $SP_size 0 9 
+        $CWR_MEM $SP_base_addr $SP_size 0 9 
 	# first value zero
-        $CWR_MEM $DEV_SIS $FF_base_addr 0x1 0 0 
-        $CWR_MEM $DEV_SIS $SP_base_addr 0x1 0 0 
+        $CWR_MEM $FF_base_addr 0x1 0 0 
+        $CWR_MEM $SP_base_addr 0x1 0 0 
 	# setup IQ out
 	set_bits $LLRF_VM_CTRL 0xFFFFFFCF 0x00
         set_bits $LLRF_PI_1_CTRL 0xFFFFFFFC 0x0
@@ -706,15 +706,15 @@ select opt in $OPTIONS; do
         set_bits $LLRF_PI_1_CTRL 0xFFFFFFC3 0x18
         set_bits $LLRF_PI_2_CTRL 0xFFFFFFC3 0x18
 	# use values
-        $CS_CMD  $DEV_SIS 2 > tmp.txt
-        $CS_CMD  $DEV_SIS A > tmp.txt
-        $CS_CMD  $DEV_SIS 3 > tmp.txt
+        $CS_CMD  2 > tmp.txt
+        $CS_CMD  A > tmp.txt
+        $CS_CMD  3 > tmp.txt
       elif [ "$opt" = "DECREASE_FF_TBL_SPEED" ]; then
         dec_ff_tbl_speed $LLRF_PI_1_CTRL
 	# use values
-        $CS_CMD  $DEV_SIS 2 > tmp.txt
-        $CS_CMD  $DEV_SIS A > tmp.txt
-        $CS_CMD  $DEV_SIS 3 > tmp.txt
+        $CS_CMD  2 > tmp.txt
+        $CS_CMD  A > tmp.txt
+        $CS_CMD  3 > tmp.txt
       elif [ "$opt" = "USE_CIRCULAR_FF" ]; then
         toggle_bit $LLRF_LUT_CTRL_1_PARAM 0x80000
       else
@@ -738,8 +738,8 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "SETUP_MEM_STORE" ]; then
         setup_mem_store
       elif [ "$opt" = "NEW_PULSE_TYPE_SETUP" ]; then
-        $CS_CMD   $DEV_SIS 3 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   3 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "SETUP_SP_FF_OUTPUT" ]; then
         set_bits $LLRF_PI_1_CTRL 0xFFFFFFC0 0x18
         set_bits $LLRF_PI_2_CTRL 0xFFFFFFC0 0x18
@@ -747,16 +747,16 @@ select opt in $OPTIONS; do
       elif [ "$opt" = "SETUP_PI_ERROR" ]; then
         setup_mem_pi_err
       elif [ "$opt" = "COMMIT_CHANGES_IMMEDIATE_USE" ]; then
-        $CS_CMD   $DEV_SIS 2 > tmp.txt
-        $CS_CMD   $DEV_SIS A > tmp.txt
+        $CS_CMD   2 > tmp.txt
+        $CS_CMD   A > tmp.txt
         echo "New register values taken into use"
       elif [ "$opt" = "PULSE_LUT" ]; then
-        $CS_CMD   $DEV_SIS C > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_IQ_DEBUG1 $LLRF_IQ_DEBUG2
+        $CS_CMD   C > tmp.txt
+        $CRD_CMD $LLRF_IQ_DEBUG1 $LLRF_IQ_DEBUG2
       elif [ "$opt" = "CURRENT_SETTINGS" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_LUT_CTRL_1_PARAM $LLRF_PI_ERR_MEM_SIZE
-        $CRD_CMD $DEV_SIS $LLRF_IQ_DEBUG_1 $LLRF_IQ_DEBUG_4
-        $CRD_CMD $DEV_SIS $LLRF_GIP $LLRF_GIP
+        $CRD_CMD $LLRF_LUT_CTRL_1_PARAM $LLRF_PI_ERR_MEM_SIZE
+        $CRD_CMD $LLRF_IQ_DEBUG_1 $LLRF_IQ_DEBUG_4
+        $CRD_CMD $LLRF_GIP $LLRF_GIP
       else
         echo bad option
       fi
@@ -820,11 +820,11 @@ select opt in $OPTIONS; do
         set_bits $LLRF_PI_2_CTRL 0xFFFFFFC3 0x20
         echo "CUSTOM OUTPUT: PI_CTRL: PI error values" 
       elif [ "$opt" = "DEBUG_VALUE" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_IQ_DEBUG1
+        $CRD_CMD $LLRF_IQ_DEBUG1
       elif [ "$opt" = "CURRENT_SETTINGS" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_PI_1_CTRL
-        $CRD_CMD $DEV_SIS $LLRF_PI_2_CTRL
-        $CRD_CMD $DEV_SIS $LLRF_IQ_CTRL
+        $CRD_CMD $LLRF_PI_1_CTRL
+        $CRD_CMD $LLRF_PI_2_CTRL
+        $CRD_CMD $LLRF_IQ_CTRL
       else
         echo bad option
       fi
@@ -833,41 +833,41 @@ select opt in $OPTIONS; do
     ################################
     # Trigger FSM
     ################################
-    $CRD_CMD $DEV_SIS $LLRF_GOP
+    $CRD_CMD $LLRF_GOP
     select opt in $OPTIONS_FSM; do
       if [ "$opt" = "BACK" ]; then
 	break
       elif [ "$opt" = "PULSE_COMMING" ]; then
         set_bits_no_commit $STRUCK_ADC_SAMPLE_CTRL 0x800
-        $WR_CMD  $DEV_SIS 0x10 0x2
-        $CS_CMD   $DEV_SIS 6 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $WR_CMD  0x10 -w 0x2
+        $CS_CMD   6 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "PULSE_START" ]; then
-        $CS_CMD   $DEV_SIS 7 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   7 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "PULSE_END" ]; then
-        $CS_CMD   $DEV_SIS 8 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   8 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "PMS" ]; then
-        $CS_CMD   $DEV_SIS 9 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   9 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "UPDATE_SP" ]; then
-        $CS_CMD   $DEV_SIS 5 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   5 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "UPDATE_FF" ]; then
-        $CS_CMD   $DEV_SIS 4 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   4 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "NEW_PULSE_TYPE" ]; then
-        $CS_CMD   $DEV_SIS 3 > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   3 > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "IRQ_CLEAR" ]; then
-        $CS_CMD   $DEV_SIS D > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   D > tmp.txt
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "CURRENT_SETTINGS" ]; then
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CRD_CMD $LLRF_GOP
       elif [ "$opt" = "SW_RESET" ]; then
-        $CS_CMD   $DEV_SIS B > tmp.txt
-        $CRD_CMD $DEV_SIS $LLRF_GOP
+        $CS_CMD   B > tmp.txt
+        $CRD_CMD $LLRF_GOP
       else
         echo bad option
       fi

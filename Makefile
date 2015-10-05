@@ -89,3 +89,4 @@ sis8300_write_ddr_mem: sis8300_write_ddr_mem.o
 
 EXECUTABLES += $(wildcard matlab_scripts/*.m)
 EXECUTABLES += $(wildcard scripts/*.sh)
+EXECUTABLES += $(wildcard scripts/*.pl)
