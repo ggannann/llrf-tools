@@ -16,9 +16,9 @@ OPM_Norm=NORMAL
 OPM_SPout=OutputSP
 
 #Device state
-DS_reset=7
-DS_init=3
-DS_on=4
+DS_reset=RESET
+DS_init=INIT
+DS_on=ON
 
 #Default values
 DEFAULT_CONF_FILE=mtca_1p0.conf
@@ -257,12 +257,15 @@ function run_circular_sp_test {
   org_opmode=$($GET $LLRF_SYS:OPMODE)
   echo "org_opmode: $org_opmode"
   if [ $loop_state -eq 0 ] ; then
-    $PUT $LLRF_SYS $DS_reset > tmp.txt    
-    $PUT $LLRF_SYS $DS_init > tmp.txt    
+    $PUT $LLRF_SYS:SMSGS $DS_reset > tmp.txt    
+    $PUT $LLRF_SYS:SMSGS $DS_init > tmp.txt    
     $PUT $LLRF_SYS:OPMODE $OPM_SPout > tmp.txt    
-    $PUT $LLRF_SYS $DS_on > tmp.txt    
+    $PUT $LLRF_SYS:SMSGS $DS_on > tmp.txt    
     echo "Operation Mode: OutputSP"
   fi
+  unset cav_mag
+  unset cav_ang
+  unset ref_ang
   org_i=$($GET $LLRF_SYS:PI-I-FIXEDSPVAL)
   org_q=$($GET $LLRF_SYS:PI-Q-FIXEDSPVAL)
   i_val=-$mag;
@@ -295,19 +298,29 @@ function run_circular_sp_test {
     ang=$(echo "$ang+$ang_delta" | bc -l)
     i_val=$(echo "c($ang)*$mag" | bc -l)
     q_val=$(echo "s($ang)*$mag" | bc -l)
-    #echo "I: $i_val, Q: $q_val"
+#    echo "I: $i_val, Q: $q_val"
+#    echo -e "Wait for press of anykey \c "
+#    read nothing
     $PUT $LLRF_SYS:PI-I-FIXEDSPVAL $i_val > tmp.txt
     $PUT $LLRF_SYS:PI-Q-FIXEDSPVAL $q_val > tmp.txt
     cav_mag[$i]=$($GET $LLRF_SYS:AI0-MAG)
     cav_ang[$i]=$($GET $LLRF_SYS:AI0-ANG)
+    ref_ang[$i]=$($GET $LLRF_SYS:AI1-ANG)
     i=$(($i+1))
   done 
-  $PUT $LLRF_SYS:OPMODE $org_opmode > tmp.txt
+  if [ $loop_state -eq 0 ] ; then
+    $PUT $LLRF_SYS:SMSGS $DS_reset > tmp.txt    
+    $PUT $LLRF_SYS:SMSGS $DS_init > tmp.txt    
+    $PUT $LLRF_SYS:OPMODE $org_opmode > tmp.txt
+    $PUT $LLRF_SYS:SMSGS $DS_on > tmp.txt    
+  fi
   $PUT $LLRF_SYS:PI-I-FIXEDSPVAL $org_i > tmp.txt
   $PUT $LLRF_SYS:PI-Q-FIXEDSPVAL $org_q > tmp.txt
   echo "Test end, best RMS ($best_rms) at angle $best_ang_val, worst RMS ($worst_rms) at angle $worst_ang_val"
-  echo "cav_mag: ${cav_mag[*]}"
-  echo "cav_ang: ${cav_ang[*]}"
+  echo "cav_mag=[ ${cav_mag[*]} ];"
+  echo "cav_ang=[ ${cav_ang[*]} ];"
+  echo "ref_ang=[ ${ref_ang[*]} ];"
+  echo "mag=$mag;"
 }
 
 

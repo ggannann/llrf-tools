@@ -93,7 +93,7 @@ LLRF_MEM_CTRL_3_PARAM=0x420
 LLRF_MEM_CTRL_4_PARAM=0x421
 LLRF_PI_ERR_MEM_SIZE=0x422
 LLRF_PI_ERR_CNT=0x423
-LLRF_ARB_CTRL_PARAM=0x424
+LLRF_BOARD_SETUP=0x424
 LLRF_NEAR_IQ_1_PARAM=0x425
 LLRF_NEAR_IQ_2_PARAM=0x426
 LLRF_NEAR_IQ_DATA=0x427
@@ -454,6 +454,8 @@ function save_input_to_file {
   printf "%% " > llrf_m_script.m
   printf "%s " $(date) >> llrf_m_script.m
   printf "\n" >> llrf_m_script.m
+#  printf "clear all\n" >> llrf_m_script.m
+#  printf "close all\n" >> llrf_m_script.m
   #printf "addpath($LLRF_CL_PATH)" >> llrf_m_script.m
   # Struck sample_length
   reg_val=$($RD_CMD 0x12A | grep -m1 -Po 0x[0123456789abcdefABCDEF]{1\,8})
@@ -465,6 +467,20 @@ function save_input_to_file {
   reg_val=$(( ($reg_val ^ 1023 ) & 1023))
   printf "\n in_ch_enable=%d;\n" $reg_val >> llrf_m_script.m
   in_ch_enable=$(printf "0x%x\n" $reg_val)
+  # debug2mem settings
+  reg_val=$($CRD_CMD $LLRF_BOARD_SETUP | grep -m1 -Po 0x[0123456789abcdefABCDEF]{8})
+  debug=$((($reg_val & 0x000F0000)>>16))
+  printf "\n debug_adc_ch=%d;\n" $debug >> llrf_m_script.m
+  debug_a[1]=0
+  debug_a[2]=0
+  debug_a[3]=$((($debug & 0x1)>>0))
+  debug_a[4]=$((($debug & 0x1)>>0))
+  debug_a[5]=$((($debug & 0x2)>>1))
+  debug_a[6]=$((($debug & 0x2)>>1))
+  debug_a[7]=$((($debug & 0x4)>>2))
+  debug_a[8]=$((($debug & 0x4)>>2))
+  debug_a[9]=$((($debug & 0x8)>>3))
+  debug_a[10]=$((($debug & 0x8)>>3))
   #Reading memory, asuming that ch_i is located at address i*mem_size
   for i in `seq 1 10`;
   do
@@ -473,7 +489,7 @@ function save_input_to_file {
       addr=$(($mem_size_inp_dec*($i-1)*32))
       base_addr=$(printf "%x\n" $addr)
       echo "  Writing in_ch_$i from base addr 0x$base_addr to file in_ch_data_$i.dat"
-      binoffset_to_2c=$(($i<7))
+      binoffset_to_2c=$((1-${debug_a[$i]}))
       matlab_format=$((2-$binoffset_to_2c))
       $CRD_MEM $base_addr $mem_size_inp $matlab_format $binoffset_to_2c >> in_ch_data_$i.dat
     fi
@@ -546,7 +562,7 @@ function save_input_to_file {
   printf "" > stored_custom_data.dat
   $CRD_MEM $base_addr $mem_size_outp 1 >> stored_custom_data.dat
   printf "\n [in_ch,memory]=load_data(in_ch_enable);\n" >> llrf_m_script.m
-  printf "\n show_data_near_iq(in_ch,memory,mem_type,sp_I,sp_Q,use_scaling,angle_offset,M,N,cav_inp_delay_enable,cav_inp_delay,pulse_start_cnt,pulse_active_cnt,pi_err_samples)\n" >> llrf_m_script.m
+  printf "\n show_data_near_iq(in_ch,memory,mem_type,sp_I,sp_Q,use_scaling,angle_offset,M,N,cav_inp_delay_enable,cav_inp_delay,pulse_start_cnt,pulse_active_cnt,pi_err_samples,debug_adc_ch)\n" >> llrf_m_script.m
 }
 function matlab_plot {
   screen -S matlabSession1 -X stuff $'llrf_m_script\n'

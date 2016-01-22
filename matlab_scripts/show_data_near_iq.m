@@ -1,12 +1,15 @@
-function show_data_near_iq(in_ch,memory,mem_type,sp_I,sp_Q,use_scaling,angle_offset,M,N,cav_inp_delay_enable,cav_inp_delay,pulse_start_cnt,pulse_active_cnt,pi_err_samples)
+function show_data_near_iq(in_ch,memory,mem_type,sp_I,sp_Q,use_scaling,angle_offset,M,N,cav_inp_delay_enable,cav_inp_delay,pulse_start_cnt,pulse_active_cnt,pi_err_samples, debug_adc_ch)
 % data: in_ch{1} .. in_ch{10}
 plot_cmd{1} = 'o';
 plot_cmd{2} = 'r+';
 plot_cmd{3} = 'kd';
 plot_cmd{4} = 'gd';
-plot_cmd{5} = 'g*';
+plot_cmd{5} = '*';
 plot_cmd{6} = 'cp';
-plot_cmd{7} = '.';
+plot_cmd{7} = 'xg';
+plot_cmd{8} = 'pr';
+plot_cmd{9} = '<b';
+plot_cmd{10} = '>k';
 output_type{1} = 'PI-error';
 output_type{2} = 'Cav IQ';
 output_type{3} = 'Cav MA';
@@ -70,29 +73,48 @@ near_iq = 2/N*[sin([0:N-1]*2*pi*M/N);cos([0:N-1]*2*pi*M/N)];
 disp(sprintf('* Input channels *'))
 % cavity
 % cavity input delay (to sync cav and ref before phase compansation)
-cav_delay = cav_inp_delay_enable*3 + cav_inp_delay_enable*cav_inp_delay;
-disp(sprintf('Cavity input delay: %d',cav_delay));
+%cav_delay = cav_inp_delay_enable*3 + cav_inp_delay_enable*cav_inp_delay;
+%disp(sprintf('Cavity input delay: %d',cav_delay));
 
 [r,c]   = size(in_ch{1});
 samp    = reshape(in_ch{1}(:,[2 1])',r*c,1);
 [r,c]   = size(samp);
-if cav_delay > 0
-    samp = [zeros(cav_delay,1); samp];
-end
-[SNR_cav_samp]=snr_plot(samp(N*pulse_start_cnt:N*pi_err_samples-10),Fs,0);
-samp_iq = reshape(samp(1:floor((r+cav_delay)/N)*N),N,floor((r+cav_delay)/N));
+%if cav_delay > 0
+%    samp = [zeros(cav_delay,1); samp];
+%end
+figure(10)
+subplot(2,1,1)
+[SNR_cav_samp]=snr_plot(samp(N*pulse_start_cnt:N*pi_err_samples-10),Fs,1,0);
+title('PSD - Cavity signal')
+figure(5)
+%samp_iq = reshape(samp(1:floor((r+cav_delay)/N)*N),N,floor((r+cav_delay)/N));
+samp_iq = reshape(samp(1:floor(r/N)*N),N,floor(r/N));
 i_q     = near_iq*samp_iq;
 iq_cav  = complex(i_q(1,:),i_q(2,:));
+figure(14)
+subplot(3,1,1)
+snr_plot(iq_cav(beam_ind),Fs/N,1,1);
+title('PSD - IQ Cavity signal')
+figure(5)
 plot(iq_cav(pulse_ind),plot_cmd{1});
 mag(1)   = mean(abs(iq_cav));
 phase(1) = mean(angle(iq_cav))/(2*pi)*360;
 
 % ref_line
 samp    = reshape(in_ch{2}(:,[2 1])',r*c,1);
-[SNR_ref_samp]=snr_plot(samp(N*(pulse_start_cnt+10):N*(pi_err_samples-10)),Fs,0);
+figure(10)
+subplot(2,1,2)
+[SNR_ref_samp]=snr_plot(samp(N*(pulse_start_cnt+10):N*(pi_err_samples-10)),Fs,1,0);
+title('PSD - reference signal')
+figure(5)
 samp_iq = reshape(samp(1:floor(r/N)*N),N,floor(r/N));
 i_q     = near_iq*samp_iq;
 iq_ref  = complex(i_q(1,:),i_q(2,:));
+figure(14)
+subplot(3,1,2)
+snr_plot(iq_ref(beam_ind),Fs/N,1,1);
+title('PSD - IQ reference signal')
+figure(5)
 plot(iq_ref(pulse_ind),plot_cmd{2});
 mag(2)   = mean(abs(iq_ref));
 phase(2) = mean(angle(iq_ref))/(2*pi)*360;
@@ -105,7 +127,7 @@ iq_cav = iq_cav(1:length(iq_ref));
 %output    
 disp(sprintf('in channel 2 (ref): Magnitude = %0.1f, Phase = %0.2f degrees, Variance = %0.3f',mag(2),phase(2),var_phase))
 %%%%%%%%%%%%%%%%
-% ADC channels 3-6
+% ADC channels 3-10
 % plotted as IQ
 %%%%%%%%%%%%%%%%
 figure(3)
@@ -117,16 +139,28 @@ plot(magn*3/4*cos(ang),magn*3/4*sin(ang),'--k');
 plot(magn/2*cos(ang),magn/2*sin(ang),'-.k');
 plot(magn/4*cos(ang),magn/4*sin(ang),':k');
 plot(iq_ref(pulse_ind),plot_cmd{2});
-for g=3:6
-    samp    = reshape(in_ch{g}(:,[2 1])',r*c,1);
-    samp_iq = reshape(samp(1:floor(r/N)*N),N,floor(r/N));
-    i_q     = near_iq*samp_iq;
-    iq = complex(i_q(1,:),i_q(2,:));
-    plot(iq(pulse_ind),plot_cmd{g});
+legend_info{1}='Max Mag';
+legend_info{2}='Mag 0.75';
+legend_info{3}='Mag 0.5';
+legend_info{4}='Mag 0.25';
+legend_info{5}='in ch 2 (Reference)';
+debug_channels=[0 0 3*bitand(debug_adc_ch,1) 4*bitand(debug_adc_ch,1) 5*bitand(debug_adc_ch,2)/2 6*bitand(debug_adc_ch,2)/2 7*bitand(debug_adc_ch,4)/4 8*bitand(debug_adc_ch,4)/4 9*bitand(debug_adc_ch,8)/8 10*bitand(debug_adc_ch,8)/8];
+i=1;
+for g=3:10
+    if debug_channels(g)==0
+        samp    = reshape(in_ch{g}(:,[2 1])',r*c,1);
+        samp_iq = reshape(samp(1:floor(r/N)*N),N,floor(r/N));
+        i_q     = near_iq*samp_iq;
+        iq = complex(i_q(1,:),i_q(2,:));
+        plot(iq(pulse_ind),plot_cmd{g});
+        str_adc=sprintf('ADC %d',g);
+        legend_info{5+i}=str_adc;
+        i=i+1;
+    end
 end
 hold off
-legend('Max Mag','0.75 Mag','0.5 Mag','0.25 Mag','in ch 2 (Reference)','ADC\_CH 3','ADC\_CH 4','ADC\_CH 5','ADC\_CH 6')
-title('Additional input channels')
+legend(legend_info)
+title('Additional ADC input channels')
 axis equal
 ylabel('Q')
 xlabel('I')
@@ -145,6 +179,13 @@ cav_phase = angle(iq_cav) - angle(iq_ref) + angle_offset;
 iq_cav_comp = complex(icav,qcav);
 plot(iq_cav_comp(pulse_ind),plot_cmd{6});
 
+figure(14)
+subplot(3,1,3)
+snr_plot(iq_cav_comp(beam_ind),Fs/N,1,1);
+title('PSD - IQ cav comp durring beam')
+figure(5)
+
+
 s=iq_cav(beam_ind);
 n=iq_cav(beam_ind)-mean(iq_cav(beam_ind));
 snr_cav=20*log10(abs(mean(s))/abs(std(n)));
@@ -162,10 +203,6 @@ disp(sprintf('  Reference input SNR_cav_IQ  : %0.1f,\t Improvement: %0.1f',snr_c
 disp(sprintf('  Reference input SNR_cav_comp: %0.1f,\t Improvement: %0.1f',snr_cav_comp, snr_cav_comp-snr_cav))
 disp(sprintf('*********************************************'))
 
-
-%iq_cav_norm = iq_cav_comp./32768;
-%iq_ref_norm = iq_ref./32768;
-%save('cav_ref_iq.mat','iq_cav_norm','iq_ref_norm');
 
 ref_mag = abs(iq_ref);
 ref_phase = angle(iq_ref);
@@ -246,32 +283,6 @@ if mem_type == 0
     d2 = d2./2^15*100;
     output_type_t{1} = 'PI-error I [%]';
     output_type_t{2} = 'PI-error Q [%]';
-elseif mem_type == 1
-    output_type_t{1} = 'Cavity I';
-    output_type_t{2} = 'Cavity Q';
-elseif mem_type == 2
-    d2 = d2/2^13*360/(2*pi);
-    output_type_t{1} = 'Cavity Magnitude';
-    output_type_t{2} = 'Cavity Angle [degrees]';
-elseif mem_type == 3
-    output_type_t{1} = 'Ref I';
-    output_type_t{2} = 'Ref Q';
-elseif mem_type == 4
-    d1 = d1/2^13*360/(2*pi);
-    d2 = d2/2^13*360/(2*pi);
-    output_type_t{1} = 'Ref Angle [degrees]';
-    output_type_t{2} = 'Cavity Angle [degrees]';
-elseif mem_type == 5
-    d2 = d2/2^13*360/(2*pi);
-    output_type_t{1} = 'To PI-ctrl Magnitude';
-    output_type_t{2} = 'To PI-ctrl Angle [degrees]';
-elseif mem_type == 6
-    d2 = d2/2^13*360/(2*pi);
-    output_type_t{1} = 'VM Magnitude';
-    output_type_t{2} = 'VM Angle [degrees]';
-elseif mem_type == 7
-    output_type_t{1} = 'VM I';
-    output_type_t{2} = 'VM Q';
 end
 
 figure(6)
@@ -292,4 +303,6 @@ disp(sprintf('******************************************************************
 %  DEBUG PLOTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-plot_internal_signals(in_ch,N,angle_offset,sp_I,sp_Q,beam_ind)
+if sum(debug_channels)>0
+  plot_internal_signals(in_ch,N,angle_offset,sp_I,sp_Q,beam_ind,debug_channels)
+end

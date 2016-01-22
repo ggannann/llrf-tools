@@ -217,6 +217,7 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
             break;
         case LLRF_VM_CTRL:
             printf("LLRF_VM_CTRL: 0x%08X\n", reg_val);
+            printf("\tUse VM predistortion: 0x%01X\n", (reg_val&0x00000040)>>6);
             printf("\tForced Angle: 0x%01X\n", (reg_val&0x00000020)>>5);
             printf("\tForced Magnitude: 0x%01X\n", (reg_val&0x00000010)>>4);
             printf("\tSWAP IQ: 0x%01X\n", (reg_val&0x00000008)>>3);
@@ -278,6 +279,15 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
             break;
         case LLRF_BOARD_SETUP:
             printf("LLRF_BOARD_SETUP: 0x%08X\n", reg_val);
+            printf("\tDebug2mem: 0x%01X\n", (reg_val&0x000F0000)>>16);
+            val_u = (unsigned)(reg_val&0x00010000)>>16;
+            if(val_u == 1){printf("\t\tADC2MEM: signal 3 and 4 are used for internal debug signals\n");}
+            val_u = (unsigned)(reg_val&0x00020000)>>17;
+            if(val_u == 1){printf("\t\tADC2MEM: signal 5 and 6 are used for internal debug signals\n");}
+            val_u = (unsigned)(reg_val&0x00040000)>>18;
+            if(val_u == 1){printf("\t\tADC2MEM: signal 7 and 8 are used for internal debug signals\n");}
+            val_u = (unsigned)(reg_val&0x00080000)>>19;
+            if(val_u == 1){printf("\t\tADC2MEM: signal 9 and 10 are used for internal debug signals\n");}
             printf("\tHARLINK level low: 0x%01X\n", (reg_val&0x0000F000)>>12);
             printf("\tHARLINK level enabled: 0x%01X\n", (reg_val&0x00000F00)>>8);
             printf("\tForce HARLINK out: 0x%01X\n", (reg_val&0x000000F0)>>4);
@@ -474,6 +484,33 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
             val_u = (unsigned)((reg_val&0xFF000000)>>24);
             value_f = (float)val_u / (2<<7);
             printf("\tMax-Min Mag ch-10: 0x%01X (%f)\n", val_u,value_f);
+            break;
+        case LLRF_VM_PREDIST_R0:
+            printf("LLRF_VM_PREDIST_R0: 0x%08X\n", reg_val);
+            value = (signed)(reg_val)>>16;
+            value_f = (float)value / (2<<13);
+            printf("\tR00:  %d (%f)\n", value,value_f);
+            value = (signed)(reg_val<<16)>>16;
+            value_f = (float)value / (2<<13);
+            printf("\tR01:  %d (%f)\n", value,value_f);
+            break;
+        case LLRF_VM_PREDIST_R1:
+            printf("LLRF_VM_PREDIST_R1: 0x%08X\n", reg_val);
+            value = (signed)(reg_val)>>16;
+            value_f = (float)value / (2<<13);
+            printf("\tR10:  %d (%f)\n", value,value_f);
+            value = (signed)(reg_val<<16)>>16;
+            value_f = (float)value / (2<<13);
+            printf("\tR11:  %d (%f)\n", value,value_f);
+            break;
+        case LLRF_VM_PREDIST_DC:
+            printf("LLRF_VM_PREDIST_DC: 0x%08X\n", reg_val);
+            value = (signed)(reg_val)>>16;
+            value_f = (float)value / (2<<14);
+            printf("\tDC_I:  %d (%f)\n", value,value_f);
+            value = (signed)(reg_val<<16)>>16;
+            value_f = (float)value / (2<<14);
+            printf("\tDC_Q:  %d (%f)\n", value,value_f);
             break;
         case LLRF_IQ_DEBUG1:
             printf("LLRF_IQ_DEBUG1: 0x%08X\n", reg_val);

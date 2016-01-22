@@ -71,9 +71,12 @@ select opt in $OPTIONS; do
           if [ "$opt" = "BACK" ]; then
 	    break
           elif [ "$opt" = "DUMMY_TABLE" ]; then
+            echo "SP and FF tables filled for PT0 and SM"
             caput -a $LLRF_SYS:FF-PT0-I 2 0 0.3 0.3 > tmp.txt
             caput -a $LLRF_SYS:SP-PT0-I 2 0 0.3 0.3 > tmp.txt
             caput $LLRF_SYS:PT 0
+            caput -a $LLRF_SYS:FF-SM-I 2 0 0.3 0.3 > tmp.txt
+            caput -a $LLRF_SYS:SP-SM-I 2 0 0.3 0.3 > tmp.txt
           elif [ "$opt" = "IMPORT_TABLE" ]; then
             setup_table
             caput $LLRF_SYS:PT 0

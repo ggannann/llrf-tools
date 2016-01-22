@@ -6,6 +6,7 @@
 #define __USE_BSD
 #include <math.h>
 
+#include <time.h>
 #include "sis8300drv.h"
 #include "sis8300_reg.h"
 
@@ -93,6 +94,21 @@ int create_data(unsigned* data, unsigned size, unsigned data_type, unsigned shif
     return 0;
 }
 
+// call to start timer
+struct timespec timer_start(){
+    struct timespec start_time;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_time);
+    return start_time;
+}
+
+// call when you want time diff in nano sec
+long timer_end(struct timespec start_time){
+    struct timespec end_time;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_time);
+    long diffInNanos = end_time.tv_nsec - start_time.tv_nsec;
+    return diffInNanos;
+}
+
 int main(int argc, char **argv) {
     int status;
     sis8300drv_usr *sisuser;
@@ -106,6 +122,8 @@ int main(int argc, char **argv) {
     unsigned data_type_i;
     unsigned data_type_q;
     unsigned validate;
+    clock_t x;
+    clock_t y;
 
     if (argc < 6 || argc > 7) {
         printf("Usage: %s [device_node], [memory offset], [size (in number of blocks of 8-IQ points(8*2*16=256 bits))], [data_type_i data_type_q], opt:{validate (0|1)}\n", argv[0]);
@@ -154,10 +172,11 @@ int main(int argc, char **argv) {
     create_data(data,size,data_type_q,0); // set Q part
     create_data(data,size,data_type_i,16); // set I part
 
-    /*DEBUG
+    // DEBUG
+    printf("Data that will be written:\n");
     for(i = 0; i < size; i++){
         printf("Data 0x%04X: 0x%08X\n", i,data[i]);
-    }*/
+    }
 
 
     // Open device
@@ -169,7 +188,11 @@ int main(int argc, char **argv) {
 
     // Write DDR
     printf("Write CMD: offset = 0x%08X, data_size = %d bytes\n", offset, data_size);
+
+//    struct timespec vartime = timer_start();  // begin a timer called 'vartime'
     status = sis8300drv_write_ram(sisuser, offset, data_size, data);
+//    long time_elapsed_nanos = timer_end(vartime);
+//    printf("2 MB written in (nanoseconds): %ld\n", time_elapsed_nanos);
     if(status < 0){
 	printf("write error: %i\n", status);
 	exit(-1);

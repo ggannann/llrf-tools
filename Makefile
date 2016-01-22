@@ -31,8 +31,10 @@ vpath %.c ../../custom_logic/
 #EXECUTABLES=${LLRFTOOLS_OBJS}
 
 USR_DEPENDENCIES += sis8300drv
-USR_DEPENDENCIES += llrftools
 USR_DEPENDENCIES += udev
+#USR_DEPENDENCIES += sis8300drv,niklasclaesson
+USR_DEPENDENCIES += llrftools
+
 
 SIS8300DRV_LIB = -L ${EPICS_MODULES_PATH}/sis8300drv/2.0.0/${EPICSVERSION}/lib/${T_A} -lsis8300drv
 LLRFTOOLS_LIB  = ${SIS8300DRV_LIB} -L . -ludev -lllrftools

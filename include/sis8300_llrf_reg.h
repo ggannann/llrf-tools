@@ -65,14 +65,17 @@
 #define LLRF_MON_STATUS_MAG_2   0x436
 #define LLRF_MON_STATUS_MAG_3   0x437
 #define LLRF_MON_STATUS_MAG_4   0x438
-#define LLRF_IQ_DEBUG1   	0x439
-#define LLRF_IQ_DEBUG2   	0x43A
-#define LLRF_IQ_DEBUG3   	0x43B
-#define LLRF_IQ_DEBUG4   	0x43C
+#define LLRF_VM_PREDIST_R0   	0x439
+#define LLRF_VM_PREDIST_R1   	0x43A
+#define LLRF_VM_PREDIST_DC   	0x43B
+#define LLRF_IQ_DEBUG1   		0x43C
+#define LLRF_IQ_DEBUG2   		0x43D
+#define LLRF_IQ_DEBUG3   		0x43E
+#define LLRF_IQ_DEBUG4   		0x43F
 
 /* LLRF USER REGISTERS */
 #define LLRF_FIRST_REG_TEST     0x400
-#define LLRF_LAST_REG_TEST      0x438
+#define LLRF_LAST_REG_TEST      0x43F
 
 const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
      // {Reg type (0=r/w 1=read only const,2=special,3=read only), Size, Default value, REG_ID}
@@ -99,7 +102,7 @@ const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
         { 0, 0x00001FFF, 0x00000000, LLRF_IQ_CTRL},
         { 0, 0xFFFFFFFF, 0x00000000, LLRF_IQ_ANGLE},
         { 2, 0x00000000, 0x00000000, LLRF_IQ_DC_OFFSET},
-        { 0, 0x0000003F, 0x00000000, LLRF_VM_CTRL},
+        { 0, 0x0000007F, 0x00000000, LLRF_VM_CTRL},
         { 0, 0xFFFFFFFF, 0x00000000, LLRF_VM_MAG_LIMIT},
         { 3, 0xFFFFFFFF, 0x00000000, LLRF_SAMPLE_CNT},
         { 3, 0xFFFFFFFF, 0x00000000, LLRF_PULSE_START_CNT},
@@ -133,6 +136,9 @@ const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
         { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_2},
         { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_3},
         { 2, 0xFFFFFFFF, 0x00000000, LLRF_MON_STATUS_MAG_4},
+        { 0, 0xFFFFFFFF, 0x00000000, LLRF_VM_PREDIST_R0},
+        { 0, 0xFFFFFFFF, 0x00000000, LLRF_VM_PREDIST_R1},
+        { 0, 0xFFFFFFFF, 0x00000000, LLRF_VM_PREDIST_DC},
 };
 
 #endif /* SIS8300_LLRF_REG_H_ */

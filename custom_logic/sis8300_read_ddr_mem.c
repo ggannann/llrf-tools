@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <unistd.h>
 
+#include <time.h>
 #include "sis8300drv.h"
 #include "sis8300_reg.h"
 #include "sis8300_llrf_utils.h"
@@ -12,6 +13,22 @@
 
 #define LED_ON  0x00000001
 #define LED_OFF 0x00010000
+
+// call to start timer
+struct timespec timer_start(){
+    struct timespec start_time;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &start_time);
+    return start_time;
+}
+
+// call when you want time diff in nano sec
+long timer_end(struct timespec start_time){
+    struct timespec end_time;
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &end_time);
+    long diffInNanos = end_time.tv_nsec - start_time.tv_nsec;
+    return diffInNanos;
+}
+
 
 int main(int argc, char **argv) {
     int status;
@@ -24,6 +41,9 @@ int main(int argc, char **argv) {
     unsigned data_size;
     unsigned matlab = 0;
     int conv_2c = 0;
+
+    clock_t x;
+    clock_t y;
 
 
     if (argc < 4 || argc > 6) {
@@ -70,7 +90,12 @@ int main(int argc, char **argv) {
     if (matlab == 0){
         printf("Read CMD: offset = 0x%08X, data_size = %d bytes\n", offset, data_size);
     }
+
+//	struct timespec vartime = timer_start();  // begin a timer called 'vartime'
+
     status = sis8300drv_read_ram(sisuser, offset, data_size, readback);
+//    long time_elapsed_nanos = timer_end(vartime);
+//    printf("2 MB read in (nanoseconds): %ld\n", time_elapsed_nanos);
     if(status < 0){
        printf("readback error: %i\n", status);
        exit(-1);

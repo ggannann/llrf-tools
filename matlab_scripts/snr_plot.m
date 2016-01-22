@@ -1,17 +1,23 @@
-function [SNR]=snr_plot(x,Fs,pl);
+function [SNR]=snr_plot(x,Fs,pl,iq_p);
 
-SNR = snr(x,Fs);
 
+if iq_p==0
+    SNR = snr(x,Fs);
+else
+    SNR = -9999;
+end
 if pl==1
-    N = length(x);
+    N = ceil(length(x));
     xdft = fft(x,N);
-    xdft = xdft(1:N/2+1);
+    xdft = xdft(1:floor(N/2)+1);
     psdx = (1/(Fs*N)) * abs(xdft).^2;
     psdx(2:end-1) = 2*psdx(2:end-1);
     freq = 0:Fs/length(x):Fs/2;
     psdx_log=10*log10(psdx);
-    plot(freq,psdx_log,'b')
+    plot(freq/1000000,psdx_log,'b')
     F_s = freq(find(psdx_log==max(psdx_log)));
+    xlabel('f [MHz]')
+    ylabel('power [dB]')
 end
 
 % hold on
