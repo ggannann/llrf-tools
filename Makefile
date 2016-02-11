@@ -2,6 +2,8 @@ PROJECT=llrftools
 
 include ${EPICS_ENV_PATH}/module.Makefile
 
+OPIS=boy/
+
 EXCLUDE_ARCHS += eldk
 SOURCES=$(wildcard lib/*.c)
 HEADERS=$(wildcard include/*.h)
