@@ -68,7 +68,7 @@ GET="caget -t"
 PUT="caput -t"
 SETUP_DEFAULT="requireExec sis8300llrf -- sis8300llrf-setupDefaults.py"
 IMPORT_TABLE="requireExec sis8300llrf -- sis8300llrf-importTableFromFile.py"
-RUN_FIXED="requireExec sis8300llrf -- sis8300llrf-test-runFixedPulses.py"
+RUN_FIXED="requireExec sis8300llrf-demo -- sis8300llrf-demo-runFixedPulses.py"
 GET_ERROR_METRIC="requireExec llrftools,eit_ess -- get_error_metric.pl"
 
 ####################################
@@ -96,16 +96,19 @@ function get_status {
     bad=$(($bad+1))
     echo "  VM LIMIT ACTIVE!"
   fi
-  val=$($GET $LLRF_SYS:SMON-ILOCKSTATUS)
-  if [ $val -gt 0 ] ; then
-    bad=$(($bad+1))
-    echo "  Signal monitor Interlock $val ACTIVE!"
-  fi
-  val=$($GET $LLRF_SYS:SMON-PMSSTATUS)
-  if [ $val -gt 0 ] ; then
-    bad=$(($bad+1))
-    echo "  Signal monitor PMS $val ACTIVE!"
-  fi
+  for i in `seq 2 9`;
+  do
+    val=$($GET $LLRF_SYS:AI$i-SMON-ILCKSTAT)
+    if [ $val != "NOT_ACTIVE" ] ; then
+      bad=$(($bad+1))
+      echo "  Signal monitor Interlock AI$i ACTIVE!"
+    fi
+    val=$($GET $LLRF_SYS:AI$i-SMON-PMSSTAT)
+    if [ $val != "NOT_ACTIVE" ] ; then
+      bad=$(($bad+1))
+      echo "  Signal monitor PMS AI$i ACTIVE!"
+    fi
+  done
   return $bad
 }
 

@@ -512,6 +512,28 @@ void print_reg_cl(unsigned reg_addr, unsigned reg_val){
             value_f = (float)value / (2<<14);
             printf("\tDC_Q:  %d (%f)\n", value,value_f);
             break;
+        case LLRF_NOTCH_A:
+            printf("LLRF_NOTCH_A: 0x%08X\n", reg_val);
+            value = (signed)reg_val>>16;
+            value_f = (float)value / (2<<14);
+            printf("\tA real: %0.9f\n", (value_f));
+            value = (signed)(reg_val<<16)>>16;
+            value_f = (float)value / (2<<14);
+            printf("\tA imag: %0.9f\n", (value_f));
+            break;
+        case LLRF_NOTCH_B:
+            printf("LLRF_NOTCH_B: 0x%08X\n", reg_val);
+            value = (signed)reg_val>>16;
+            value_f = (float)value / (2<<14);
+            printf("\tB real: %0.9f\n", (value_f));
+            value = (signed)(reg_val<<16)>>16;
+            value_f = (float)value / (2<<14);
+            printf("\tB imag: %0.9f\n", (value_f));
+            break;
+        case LLRF_NOTCH_CTRL:
+            printf("LLRF_NOTCH_CTRL: 0x%08X\n", reg_val);
+            printf("\tFilter_on = %d\n", (reg_val&0x1));
+            break;
         case LLRF_IQ_DEBUG1:
             printf("LLRF_IQ_DEBUG1: 0x%08X\n", reg_val);
 //            printf("\tI: %d\n", ((signed)(reg_val&0xFFFF0000))>>16);

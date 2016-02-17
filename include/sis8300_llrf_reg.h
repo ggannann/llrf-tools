@@ -6,7 +6,7 @@
 
 /* LLRF USER REGISTERS */
 #define LLRF_FIRST_REG          0x400
-#define LLRF_LAST_REG           0x43C
+#define LLRF_LAST_REG           0x442
 
 #define LLRF_ID		    	0x400
 #define LLRF_INST_ID		0x401
@@ -68,10 +68,13 @@
 #define LLRF_VM_PREDIST_R0   	0x439
 #define LLRF_VM_PREDIST_R1   	0x43A
 #define LLRF_VM_PREDIST_DC   	0x43B
-#define LLRF_IQ_DEBUG1   		0x43C
-#define LLRF_IQ_DEBUG2   		0x43D
-#define LLRF_IQ_DEBUG3   		0x43E
-#define LLRF_IQ_DEBUG4   		0x43F
+#define LLRF_NOTCH_A            0x43C
+#define LLRF_NOTCH_B            0x43D
+#define LLRF_NOTCH_CTRL         0x43E
+#define LLRF_IQ_DEBUG1   		0x43F
+#define LLRF_IQ_DEBUG2   		0x440
+#define LLRF_IQ_DEBUG3   		0x441
+#define LLRF_IQ_DEBUG4   		0x442
 
 /* LLRF USER REGISTERS */
 #define LLRF_FIRST_REG_TEST     0x400
