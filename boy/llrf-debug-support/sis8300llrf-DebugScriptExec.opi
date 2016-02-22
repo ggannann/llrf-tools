@@ -897,7 +897,7 @@ $(pv_value)</tooltip>
     </foreground_color>
     <actions hook="false" hook_all="true">
       <action type="EXECUTE_CMD">
-        <command>requireExec -r llrftools,eit_ess -- $(name)</command>
+        <command>requireExec llrftools,eit_ess -- $(name)</command>
         <command_directory>$(user.home)</command_directory>
         <wait_time>10</wait_time>
         <description></description>
