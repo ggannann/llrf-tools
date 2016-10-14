@@ -1,4 +1,4 @@
-function [SNR]=snr_plot(x,Fs,pl,iq_p);
+function [SNR]=snr_plot(x,Fs,pl,iq_p,N_iq);
 
 
 if iq_p==0
@@ -7,12 +7,12 @@ else
     SNR = -9999;
 end
 if pl==1
-    N = ceil(length(x));
+    N = floor(length(x)/N_iq)*N_iq;
     xdft = fft(x,N);
     xdft = xdft(1:floor(N/2)+1);
     psdx = (1/(Fs*N)) * abs(xdft).^2;
     psdx(2:end-1) = 2*psdx(2:end-1);
-    freq = 0:Fs/length(x):Fs/2;
+    freq = 0:Fs/N:Fs/2;
     psdx_log=10*log10(psdx);
     plot(freq/1000000,psdx_log,'b')
     F_s = freq(find(psdx_log==max(psdx_log)));

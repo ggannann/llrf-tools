@@ -117,7 +117,7 @@ select opt in $OPTIONS; do
         # Common mode voltage VM 1.7 V
 	$WR_RTM_ATT_CMD $RTM_DWC8VM1 9 850
         # Adjust ADC input tap delay on ADC 1/2
-        $WR_CMD 0x49 -w 0x106
+        # $WR_CMD 0x49 -w 0x106
       elif [ "$opt" = "SETUP_CUSTOM_LOGIC_PI_CTRL_IQ_352_MHZ" ]; then
         ##################################################
         $WR_CMD  0x45 -w 0x33
@@ -269,6 +269,14 @@ select opt in $OPTIONS; do
         echo "PULSE_TYPE = 0, NBR_FF = 32768, NBR_SP = 1024, FF_BASE_ADDR = 0x7DF60000, FF_SIZE = 4096, SP_BASE_ADDR = 0x7DE5C000, SP_SIZE = 512"
         echo "PI_ERR           : PI_ERR_BASE_ADDR = 0x0C000000"
         echo "VM_CTRL          : Scaling off, Mag limiter on (0.996), Output inversed(to compensate for struck DAC invertion)"
+        echo "####################################################"
+        echo "SETUP DONE"
+        echo "####################################################"
+      elif [ "$opt" = "SETUP_STRUCK_3524_MHZ" ]; then
+        ##################################################
+        $WR_CMD  0x45 -w 0x32
+        echo "DAC OUTPUT: ch1&ch2" 
+        ##################################################
         echo "####################################################"
         echo "SETUP DONE"
         echo "####################################################"

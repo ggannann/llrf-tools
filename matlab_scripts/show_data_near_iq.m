@@ -21,7 +21,7 @@ output_type{8} = 'VM-ctrl IQ';
 
 disp(sprintf('****************************************************************************************'))
 
-Fs=96.25e6; % Sample frequency used for SNR calculations
+Fs=88.0525e6; % Sample frequency used for SNR calculations
 
 %%%%%%%%%%%%%%%%
 % Sample indexes
@@ -84,8 +84,9 @@ samp    = reshape(in_ch{1}(:,[2 1])',r*c,1);
 %end
 figure(10)
 subplot(2,1,1)
-[SNR_cav_samp]=snr_plot(samp(N*pulse_start_cnt:N*pi_err_samples-10),Fs,1,0);
+[SNR_cav_samp]=snr_plot(samp(N*pulse_start_cnt:N*pi_err_samples-10),Fs,1,0,N);
 title('PSD - Cavity signal')
+grid on
 figure(5)
 %samp_iq = reshape(samp(1:floor((r+cav_delay)/N)*N),N,floor((r+cav_delay)/N));
 samp_iq = reshape(samp(1:floor(r/N)*N),N,floor(r/N));
@@ -93,8 +94,9 @@ i_q     = near_iq*samp_iq;
 iq_cav  = complex(i_q(1,:),i_q(2,:));
 figure(14)
 subplot(3,1,1)
-snr_plot(iq_cav(beam_ind),Fs/N,1,1);
+snr_plot(iq_cav(beam_ind),Fs/N,1,1,N);
 title('PSD - IQ Cavity signal')
+grid on
 figure(5)
 plot(iq_cav(pulse_ind),plot_cmd{1});
 mag(1)   = mean(abs(iq_cav));
@@ -104,15 +106,17 @@ phase(1) = mean(angle(iq_cav))/(2*pi)*360;
 samp    = reshape(in_ch{2}(:,[2 1])',r*c,1);
 figure(10)
 subplot(2,1,2)
-[SNR_ref_samp]=snr_plot(samp(N*(pulse_start_cnt+10):N*(pi_err_samples-10)),Fs,1,0);
+[SNR_ref_samp]=snr_plot(samp(N*(pulse_start_cnt+10):N*(pi_err_samples-10)),Fs,1,0,N);
 title('PSD - reference signal')
+grid on
 figure(5)
 samp_iq = reshape(samp(1:floor(r/N)*N),N,floor(r/N));
 i_q     = near_iq*samp_iq;
 iq_ref  = complex(i_q(1,:),i_q(2,:));
 figure(14)
 subplot(3,1,2)
-snr_plot(iq_ref(beam_ind),Fs/N,1,1);
+grid on
+snr_plot(iq_ref(beam_ind),Fs/N,1,1,N);
 title('PSD - IQ reference signal')
 figure(5)
 plot(iq_ref(pulse_ind),plot_cmd{2});
@@ -161,6 +165,7 @@ end
 hold off
 legend(legend_info)
 title('Additional ADC input channels')
+grid on
 axis equal
 ylabel('Q')
 xlabel('I')
@@ -181,8 +186,20 @@ plot(iq_cav_comp(pulse_ind),plot_cmd{6});
 
 figure(14)
 subplot(3,1,3)
-snr_plot(iq_cav_comp(beam_ind),Fs/N,1,1);
+snr_plot(iq_cav_comp(beam_ind),Fs/N,1,1,N);
+grid on
 title('PSD - IQ cav comp durring beam')
+
+figure(38)
+subplot(2,1,1)
+snr_plot(abs(iq_cav_comp(beam_ind)),Fs/N,1,1,N);
+title('PSD - IQ cav comp MAG')
+grid on
+subplot(2,1,2)
+snr_plot(angle(iq_cav_comp(beam_ind)),Fs/N,1,1,N);
+title('PSD - IQ cav comp PHASE')
+grid on
+
 figure(5)
 
 

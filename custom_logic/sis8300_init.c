@@ -22,7 +22,7 @@ int main(int argc, char **argv) {
 
     npretrig = 0;
     clksrc = clk_src_sma;
-    clkdiv = clk_div_1;
+    clkdiv = SIS8300DRV_CLKDIV_MIN;
     trgsrc = trg_src_external;
 
     if (argc < 4 || argc > 4) {
