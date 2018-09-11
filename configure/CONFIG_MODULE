@@ -8,7 +8,7 @@ MODULE_VERSION:=4.2.0
 
 # In most case, we don't need to touch the following variables.
 
-MODULE_SRC_PATH:=m-kmod-sis8300
+MODULE_SRC_PATH:=sis8300drv
 MODULE_MAKEFILE:=$(MODULE_NAME).Makefile
 MODULE_BUILD_DIR:=build-dir
 

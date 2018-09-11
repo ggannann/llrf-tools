@@ -79,7 +79,7 @@ conf:
 ## Init: 
 init:
 ifeq "$(INIT_MODULE_SRC)" "1"
-	git clone git://apps.jcns.fz-juelich.de/lmfit
+	git clone https://bitbucket.org/europeanspallationsource/m-kmod-sis8300 $(MODULE_SRC_PATH)
 	cd $(MODULE_SRC_PATH) && git checkout $(MODULE_TAG)
 else
 	$(QUIET)echo "$(MODULE_SRC_PATH) exists. make distclean first, if one would like to restart it."

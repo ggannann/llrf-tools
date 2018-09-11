@@ -12,4 +12,6 @@ core.*
 \#*
 .cvsignore
 *_old/
+m-kmod-sis8300
+sis8300drv
 
