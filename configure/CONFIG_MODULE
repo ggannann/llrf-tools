@@ -9,7 +9,7 @@ MODULE_VERSION:=4.2.0
 # In most case, we don't need to touch the following variables.
 
 MODULE_SRC_PATH:=sis8300drv
-MODULE_MAKEFILE:=$(MODULE_NAME).Makefile
+MODULE_MAKEFILE:=llrf-tools.Makefile
 MODULE_BUILD_DIR:=build-dir
 
 # The definitions shown below can also be placed in an untracked CONFIG_MODULE.local
