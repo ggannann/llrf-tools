@@ -1,0 +1,94 @@
+.DEFAULT_GOAL := help
+
+.PHONY: help default install build rebuild clean distclean
+
+# # help is defined in 
+# # https://gist.github.com/rcmachado/af3db315e31383502660
+help:
+	$(info --------------------------------------- )	
+	$(info Available targets)
+	$(info --------------------------------------- )
+	$(QUIET) awk '/^[a-zA-Z\-\_0-9]+:/ {            \
+	  nb = sub( /^## /, "", helpMsg );              \
+	  if(nb == 0) {                                 \
+	    helpMsg = $$0;                              \
+	    nb = sub( /^[^:]*:.* ## /, "", helpMsg );   \
+	  }                                             \
+	  if (nb)                                       \
+	    print  $$1 "\t" helpMsg;                    \
+	}                                               \
+	{ helpMsg = $$0 }'                              \
+	$(MAKEFILE_LIST) | column -ts:	
+
+
+default: help
+
+## Install : 
+install:
+ifneq (,$(findstring v7,$(MODULE_TAG)))
+	$(QUIET) sudo -E bash -c '$(MODULE_MAKE_CMDS) cmakeinstall'
+else
+	$(QUIET) sudo -E bash -c '$(MODULE_MAKE_CMDS) autoconfinstall'
+endif
+
+
+## Build: 
+build: preconf
+ifneq (,$(findstring v7,$(MODULE_TAG)))
+	$(QUIET) $(MODULE_MAKE_CMDS) cmakebuild
+else
+	$(QUIET) $(MODULE_MAKE_CMDS) autoconfbuild
+endif	 
+
+
+
+## Clean, build, and install 
+rebuild: init build install
+
+
+## Clean : 
+clean: conf
+ifneq (,$(findstring v7,$(MODULE_TAG)))
+	$(QUIET) $(MODULE_MAKE_CMDS) cmakeclean
+else
+	$(QUIET) $(MODULE_MAKE_CMDS) autoconfclean
+endif	 
+
+## Distclean :
+distclean: 
+	$(QUIET)echo "Removing $(MODULE_SRC_PATH) ......... "
+	rm -rf $(MODULE_SRC_PATH)	
+
+
+
+.PHONY: preconf conf init
+
+
+preconf: init conf
+ifneq (,$(findstring v7,$(MODULE_TAG)))
+	$(QUIET) $(MODULE_MAKE_CMDS) cmake
+else
+	$(QUIET) $(MODULE_MAKE_CMDS) autoconf
+endif
+
+
+conf: 
+	$(QUIET) install -m 644 $(TOP)/$(MODULE_MAKEFILE)  $(MODULE_SRC_PATH)/
+
+
+## Init: 
+init:
+ifeq "$(INIT_MODULE_SRC)" "1"
+	git clone git://apps.jcns.fz-juelich.de/lmfit
+	cd $(MODULE_SRC_PATH) && git checkout $(MODULE_TAG)
+else
+	$(QUIET)echo "$(MODULE_SRC_PATH) exists. make distclean first, if one would like to restart it."
+endif			 
+
+
+
+.PHONY: setup
+
+## Setup: For CentOS, add /usr/local/lib to ld.so.conf
+setup:
+	$(QUIET)sudo -E bash -c ' echo "/usr/local/lib" > "/etc/ld.so.conf.d/e3-lmfit.conf"'

@@ -1,0 +1,16 @@
+#
+MODULE_NAME:=sis8300drv
+
+MODULE_TAG:=tags/v4.2.0
+
+MODULE_VERSION:=4.2.0
+
+
+# In most case, we don't need to touch the following variables.
+
+MODULE_SRC_PATH:=m-kmod-sis8300
+MODULE_MAKEFILE:=$(MODULE_NAME).Makefile
+MODULE_BUILD_DIR:=build-dir
+
+# The definitions shown below can also be placed in an untracked CONFIG_MODULE.local
+-include $(TOP)/configure/CONFIG_MODULE.local
