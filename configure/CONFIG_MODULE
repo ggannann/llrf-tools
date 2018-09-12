@@ -9,8 +9,9 @@ MODULE_VERSION:=4.2.0
 # In most case, we don't need to touch the following variables.
 
 MODULE_SRC_PATH:=sis8300drv
-MODULE_MAKEFILE:=llrf-tools.Makefile
-MODULE_BUILD_DIR:=build-dir
+MODULE_BUILD_DIR:=bin
+
+MODULE_URL:=https://bitbucket.org/europeanspallationsource/m-kmod-sis8300
 
 # The definitions shown below can also be placed in an untracked CONFIG_MODULE.local
 -include $(TOP)/configure/CONFIG_MODULE.local

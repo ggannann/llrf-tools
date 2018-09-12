@@ -80,7 +80,7 @@
 #define LLRF_FIRST_REG_TEST     0x400
 #define LLRF_LAST_REG_TEST      0x43F
 
-const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
+static const int reg_attribute[LLRF_LAST_REG_TEST-LLRF_FIRST_REG_TEST + 1][4] = {
      // {Reg type (0=r/w 1=read only const,2=special,3=read only), Size, Default value, REG_ID}
         { 1, 0xFFFFFFFF, 0xB00B0203, LLRF_ID},
         { 0, 0xFFFFFFFF, 0x00000000, LLRF_INST_ID},

@@ -1,4 +1,17 @@
 
+VARS_EXCLUDES+=$(filter DRV%,$(.VARIABLES))
+VARS_EXCLUDES+=$(filter BINS%,$(.VARIABLES))
+VARS_EXCLUDES+=$(filter APP%,$(.VARIABLES))
+VARS_EXCLUDES+=$(filter %FLAGS,$(.VARIABLES))
+VARS_EXCLUDES+=$(filter SHARED_%,$(.VARIABLES))
+VARS_EXCLUDES+=$(filter VPATH,$(.VARIABLES))
+VARS_EXCLUDES+=SUDO
+VARS_EXCLUDES+=FILES
+VARS_EXCLUDES+=MODULE_SRC_PATH_INFO
+VARS_EXCLUDES+=EXPORT_VARS
+
+
+
 MODULES_VARIABLES:=$(sort $(filter-out $(VARS_EXCLUDES) VARS_EXCLUDES,$(.VARIABLES)))
 
 .PHONY : env vars header
@@ -6,6 +19,7 @@ MODULES_VARIABLES:=$(sort $(filter-out $(VARS_EXCLUDES) VARS_EXCLUDES,$(.VARIABL
 ## Print interesting VARIABLES
 env: vars
 
+## Print interesting VARIABLES
 vars: header
 	$(foreach v, $(MODULES_VARIABLES), $(info $(v) = $($(v)))) @#noop
 

@@ -24,7 +24,7 @@
 #include "sis8300_llrf_utils.h"
 #include "sis8300_llrf_reg.h"
 
-int print_state(unsigned reg_val){
+int local_print_state(unsigned reg_val){
     int state;
 
     state=(int)reg_val&0x00000007;
@@ -57,12 +57,15 @@ double time_msec() {
 int main(int argc, char **argv) {
     int status,nbr_of_pulses,i;
     sis8300drv_usr *sisuser;
-    unsigned reg_val, max_time_nsamples, min_time_nsamples, average_nsamples;
+    unsigned reg_val, max_time_nsamples, min_time_nsamples;
+    max_time_nsamples = 0;
+    min_time_nsamples = 0;
+    //    unsigned average_nsamples;
     int state;
 
     double start, stop, max_time, min_time, time, average_time;
     max_time = average_time = 0;
-    average_nsamples = 0;
+    //    average_nsamples = 0;
     min_time = 1000000000000;
 
     if (argc == 3) {
@@ -88,7 +91,7 @@ int main(int argc, char **argv) {
         status = sis8300drv_reg_write(sisuser, LLRF_GIP_S, 0x20);
         usleep(300);
         status = sis8300drv_reg_read(sisuser, LLRF_GOP, &reg_val);
-        state = print_state(reg_val);
+        state = local_print_state(reg_val);
         if (state != 3){
             printf("Wrong state! Expected state: ACTIVE_NO_PULSE\n");
             return -1;
@@ -96,7 +99,7 @@ int main(int argc, char **argv) {
         status = sis8300drv_reg_write(sisuser, LLRF_GIP_S, 0x40);
         usleep(2800);
         status = sis8300drv_reg_read(sisuser, LLRF_GOP, &reg_val);
-        state = print_state(reg_val);
+        state = local_print_state(reg_val);
         if (state != 4){
             printf("Wrong state! Expected state: ACTIVE_PULSE\n");
             return -1;
@@ -105,7 +108,7 @@ int main(int argc, char **argv) {
 	stop = time_msec();        
 	usleep(68000);
         status = sis8300drv_reg_read(sisuser, LLRF_GOP, &reg_val);
-        state = print_state(reg_val);
+        state = local_print_state(reg_val);
         if (state != 1){
             printf("Wrong state! Expected state: IDLE\n");
             return -1;

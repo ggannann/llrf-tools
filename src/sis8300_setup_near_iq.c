@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
-#define __USE_BSD
 #include <math.h>
 
 #include "sis8300_reg.h"

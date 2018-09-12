@@ -42,8 +42,8 @@ int main(int argc, char **argv) {
     unsigned matlab = 0;
     int conv_2c = 0;
 
-    clock_t x;
-    clock_t y;
+    /* clock_t x; */
+    /* clock_t y; */
 
 
     if (argc < 4 || argc > 6) {

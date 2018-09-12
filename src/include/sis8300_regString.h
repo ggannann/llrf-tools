@@ -6,3 +6,6 @@ typedef struct regStruct {
    char* name;
 } regStruct;
 
+
+
+#endif 

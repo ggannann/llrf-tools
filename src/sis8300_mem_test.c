@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <assert.h>
 #include <unistd.h>
-#define __USE_BSD
 #include <math.h>
 
 #include <time.h>
@@ -36,18 +35,20 @@ int main(int argc, char **argv) {
     int status;
     sis8300drv_usr *sisuser;
     int i,nbr_of_mem_blocks,value,itr,j,fun;
-    unsigned blocksize = 8; // rd/wr mem must be in 256 bit blocks, i.e. 8  4-byte words
+    //    unsigned blocksize = 8; // rd/wr mem must be in 256 bit blocks, i.e. 8  4-byte words
     unsigned offset;
-    unsigned size_bytes,size_words,size_blocks;
+    unsigned size_bytes,size_words;
+    //    unsigned size_blocks;
     unsigned *data;
     unsigned *readback;
     unsigned *offsets;
 
     unsigned long long time_result;
 
-    clock_t x;
+    //    clock_t x;
     clock_t y;
 
+    j=0;
     /* Check nbr of arguments */
     if (argc != 2) {
         printf("Usage: %s [device_node, e.g. /dev/sis8300-4]\n", argv[0]);
@@ -60,7 +61,7 @@ int main(int argc, char **argv) {
     nbr_of_mem_blocks = 1024;
     size_bytes        = MEM_SIZE_BYTES/nbr_of_mem_blocks;
     size_words        = size_bytes/4;
-    size_blocks       = size_bytes/blocksize;
+    //   size_blocks       = size_bytes/blocksize;
 
     // Create data
     printf("Data block size used: %d Bytes\n", size_bytes);
@@ -112,7 +113,7 @@ int main(int argc, char **argv) {
     value  = 0x00000000;
     for(fun = 0; fun < 10; fun++){
     	y = 0;
-    	x = 0;
+	//    	x = 0;
 		for(itr = 0; itr < nbr_of_mem_blocks; itr++){
 			// create data values
 			for(i = 0; i < size_words; i++){
@@ -152,7 +153,7 @@ int main(int argc, char **argv) {
 
 		}
 		time_result = (unsigned long long)(y*1000 / CLOCKS_PER_SEC);
-		printf("Write done in %d s and %llu ms", y, time_result);
+		printf("Write done in %Lf s and %llu ms", (long double) y, time_result);
 
 		breakpoint:
 		value  = 0x00000000;

@@ -2,7 +2,6 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
-#define __USE_BSD
 #include <unistd.h>
 #include <math.h>
 #include <time.h>

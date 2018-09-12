@@ -14,4 +14,6 @@ core.*
 *_old/
 m-kmod-sis8300
 sis8300drv
+*.o
+bin
 

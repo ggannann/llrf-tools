@@ -1,6 +1,47 @@
+# -*- mode: Makefile;-*-
+
 .DEFAULT_GOAL := help
 
-.PHONY: help default install build rebuild clean distclean
+
+
+APPINC:=src/include
+APPSRC:=src
+DRVINC1:=$(MODULE_SRC_PATH)/src/main/c/lib
+DRVINC2:=$(MODULE_SRC_PATH)/src/main/c/include
+DRVSRC:=$(DRVINC1)
+
+FILES :=$(wildcard $(APPSRC)/*.c)
+BINS_SRCS := $(notdir $(filter %.c,$(FILES)))
+
+BINS := $(addprefix $(MODULE_BUILD_DIR)/, $(addsuffix _$(MODULE_VERSION) , $(BINS_SRCS:.c=)))
+BINS_OBJS :=$(BINS_SRCS:.c=.o)
+
+VPATH = $(DRVINC1) $(DRVINC2) $(DRVSRC) $(APPSRC) $(APPINC)
+
+CPPFLAGS += -I$(APPINC)
+CPPFLAGS += -I$(DRVINC1) -I$(DRVINC2)
+
+# -std=c99 
+DRV_SOURCES = sis8300drv.c \
+	sis8300drv_utils.c \
+	sis8300drv_rtm.c \
+	sis8300drv_flash.c \
+	sis8300drv_ad9510.c 
+
+
+DRV_OBJECTS := $(addsuffix .o,$(basename $(DRV_SOURCES)))
+
+SHARED_SRC:=sis8300_llrf_utils.c
+SHARED_OBJECTS:= $(addsuffix .o,$(basename $(SHARED_SRC)))
+
+
+CFLAGS := -O3 -D_GNU_SOURCE -Wall
+LDFLAGS := -Wall -lpthread -lrt -lm -ludev
+
+
+
+
+.PHONY: help default init
 
 # # help is defined in 
 # # https://gist.github.com/rcmachado/af3db315e31383502660
@@ -23,63 +64,10 @@ help:
 
 default: help
 
-## Install : 
-install:
-ifneq (,$(findstring v7,$(MODULE_TAG)))
-	$(QUIET) sudo -E bash -c '$(MODULE_MAKE_CMDS) cmakeinstall'
-else
-	$(QUIET) sudo -E bash -c '$(MODULE_MAKE_CMDS) autoconfinstall'
-endif
-
-
-## Build: 
-build: preconf
-ifneq (,$(findstring v7,$(MODULE_TAG)))
-	$(QUIET) $(MODULE_MAKE_CMDS) cmakebuild
-else
-	$(QUIET) $(MODULE_MAKE_CMDS) autoconfbuild
-endif	 
-
-
-
-## Clean, build, and install 
-rebuild: init build install
-
-
-## Clean : 
-clean: conf
-ifneq (,$(findstring v7,$(MODULE_TAG)))
-	$(QUIET) $(MODULE_MAKE_CMDS) cmakeclean
-else
-	$(QUIET) $(MODULE_MAKE_CMDS) autoconfclean
-endif	 
-
-## Distclean :
-distclean: 
-	$(QUIET)echo "Removing $(MODULE_SRC_PATH) ......... "
-	rm -rf $(MODULE_SRC_PATH)	
-
-
-
-.PHONY: preconf conf init
-
-
-preconf: init conf
-ifneq (,$(findstring v7,$(MODULE_TAG)))
-	$(QUIET) $(MODULE_MAKE_CMDS) cmake
-else
-	$(QUIET) $(MODULE_MAKE_CMDS) autoconf
-endif
-
-
-conf: 
-	$(QUIET) install -m 644 $(TOP)/$(MODULE_MAKEFILE)  $(MODULE_SRC_PATH)/
-
-
-## Init: 
-init:
+## Clone sis8300drv, switch to MODULE_TAG revision
+init: 
 ifeq "$(INIT_MODULE_SRC)" "1"
-	git clone https://bitbucket.org/europeanspallationsource/m-kmod-sis8300 $(MODULE_SRC_PATH)
+	git clone $(MODULE_URL) $(MODULE_SRC_PATH)
 	cd $(MODULE_SRC_PATH) && git checkout $(MODULE_TAG)
 else
 	$(QUIET)echo "$(MODULE_SRC_PATH) exists. make distclean first, if one would like to restart it."
@@ -87,8 +75,75 @@ endif
 
 
 
-.PHONY: setup
+.PHONY: build $(BINS) $(MODULE_BUILD_DIR)
 
-## Setup: For CentOS, add /usr/local/lib to ld.so.conf
-setup:
-	$(QUIET)sudo -E bash -c ' echo "/usr/local/lib" > "/etc/ld.so.conf.d/e3-lmfit.conf"'
+
+$(MODULE_BUILD_DIR):
+	@install -d $(MODULE_BUILD_DIR)
+
+## Build all applications in bin directory
+build: $(MODULE_BUILD_DIR) $(BINS) 
+
+
+$(MODULE_BUILD_DIR)/sis8300_write_custom_regs_$(MODULE_VERSION):  sis8300_write_custom_regs.o $(DRV_OBJECTS) $(SHARED_OBJECTS)
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_read_custom_regs_$(MODULE_VERSION): sis8300_read_custom_regs.o  $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_rst_test_$(MODULE_VERSION): sis8300_rst_test.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_trigger_fsm_$(MODULE_VERSION): sis8300_trigger_fsm.o  $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_wait_irq_$(MODULE_VERSION): sis8300_wait_irq.o $(DRV_OBJECTS) $(SHARED_OBJECTS)
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@ 
+
+$(MODULE_BUILD_DIR)/sis8300_init_$(MODULE_VERSION): sis8300_init.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_read_ddr_mem_$(MODULE_VERSION): sis8300_read_ddr_mem.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_set_custom_sw_triggers_$(MODULE_VERSION): sis8300_set_custom_sw_triggers.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_trigger_fsm_unarmed_$(MODULE_VERSION): sis8300_trigger_fsm_unarmed.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_mem_test_$(MODULE_VERSION): sis8300_mem_test.o $(DRV_OBJECTS) $(SHARED_OBJECTS)
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_reg_test_$(MODULE_VERSION): sis8300_reg_test.o $(DRV_OBJECTS) $(SHARED_OBJECTS)
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_setup_near_iq_$(MODULE_VERSION): sis8300_setup_near_iq.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_verify_tables_$(MODULE_VERSION): sis8300_verify_tables.o $(DRV_OBJECTS) $(SHARED_OBJECTS)
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_write_ddr_mem_$(MODULE_VERSION): sis8300_write_ddr_mem.o $(DRV_OBJECTS) $(SHARED_OBJECTS) 
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+$(MODULE_BUILD_DIR)/sis8300_arm_and_wait_trigg_$(MODULE_VERSION): sis8300_arm_and_wait_trigg.o $(DRV_OBJECTS)  $(SHARED_OBJECTS)  
+	$(LINK.c) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+.c.o:
+	$(COMPILE.c) $(OUTPUT_OPTION) $<
+
+
+.PHONY: clean distclean $(MODULE_BUILD_DIR)
+
+## Remove bin path, and all objects
+clean:
+	@$(RM) $(DRV_OBJECTS) $(BINS_OBJS) $(SHARED_OBJECTS)
+	@$(RM) -r $(MODULE_BUILD_DIR)
+
+## Remove source path
+distclean: clean
+	@$(RM) -r $(MODULE_BUILD_DIR) $(MODULE_SRC_PATH)
+
+
+
